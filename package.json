@@ -1,7 +1,7 @@
 {
-  "name": "json-ld-deterministic-service-template",
-  "version": "0.1.0",
-  "description": "A minimal template for building deterministic JSON-LD transformation services",
+  "name": "graph-discovery-engine",
+  "version": "0.0.0",
+  "description": "GDE v2.1 — RPM Discovery-First engine and Query Builder UI for deterministic graph pattern expansion",
   "type": "module",
   "main": "dist/kernel/index.js",
   "types": "dist/kernel/index.d.ts",
@@ -11,15 +11,17 @@
     "start": "node dist/kernel/index.js",
     "test": "npm run build:tests && node dist-tests/tests/run-tests.js",
     "test:purity": "npm run build:tests && node dist-tests/scripts/ensure-kernel-purity.js",
+    "verify": "npm run build && npm test && npm run test:purity",
     "clean": "rimraf dist dist-tests"
   },
   "keywords": [
     "json-ld",
     "deterministic",
-    "edge-computing",
-    "architecture",
-    "offline-first",
-    "template"
+    "graph-discovery",
+    "sparql",
+    "knowledge-graph",
+    "query-builder",
+    "offline-first"
   ],
   "repository": {
     "type": "git",

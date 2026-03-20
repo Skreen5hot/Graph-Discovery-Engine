@@ -4,5 +4,6 @@ dist-tests/
 *.tsbuildinfo
 unit-test-results.json
 .env
+.claude/
 .DS_Store
 Thumbs.db
