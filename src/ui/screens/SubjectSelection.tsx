@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchSubjectTypes, type SubjectTypeEntry } from "../api.js";
+import { useDebounce } from "../hooks/useDebounce.js";
 import styles from "./SubjectSelection.module.css";
 
 interface Props {
@@ -25,8 +26,9 @@ export function SubjectSelection({ onSelect }: Props) {
     });
   }, []);
 
+  const debouncedSearch = useDebounce(search, 150);
   const filtered = types.filter((t) =>
-    t.label.toLowerCase().includes(search.toLowerCase()),
+    t.label.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
 
   const displayed = showAll ? filtered : filtered.slice(0, 6);

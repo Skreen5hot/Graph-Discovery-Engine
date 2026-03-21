@@ -1,0 +1,130 @@
+/* InputField — §8.5, §12.2, §12.3 */
+
+.field {
+  margin-bottom: var(--space-5);
+}
+
+.label {
+  display: block;
+  font-size: var(--text-label);
+  font-weight: var(--weight-medium);
+  color: var(--neutral-700);
+  margin-bottom: var(--space-2);
+  line-height: var(--lh-label);
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-input);
+  font-family: var(--font-ui);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-sm);
+  background: var(--neutral-0);
+  line-height: var(--lh-body);
+  min-height: 44px;
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--accent-500);
+  box-shadow: 0 0 0 2px var(--accent-100);
+  outline: none;
+}
+
+.inputError {
+  border-color: var(--error-500);
+  border-width: 2px;
+}
+
+.error {
+  font-size: var(--text-body-sm);
+  color: var(--error-600);
+  margin-top: var(--space-1);
+  line-height: var(--lh-body-sm);
+}
+
+/* §12.3 — Number Input Group
+ * Operator dropdown + numeric input + unit label
+ * Inline-left, same baseline, visually unified. NEVER a slider. */
+.numberGroup {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.operatorDropdown {
+  padding: var(--space-3) var(--space-3);
+  font-size: var(--text-input);
+  font-family: var(--font-ui);
+  border: 1px solid var(--neutral-300);
+  border-right: none;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  background: var(--neutral-50);
+  color: var(--neutral-700);
+  min-width: 120px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.operatorDropdown:focus {
+  border-color: var(--accent-500);
+  outline: none;
+  z-index: 1;
+}
+
+.numberInput {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-input);
+  font-family: var(--font-ui);
+  border: 1px solid var(--neutral-300);
+  border-radius: 0;
+  min-width: 80px;
+  min-height: 44px;
+  -moz-appearance: textfield;
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.numberInput:focus {
+  border-color: var(--accent-500);
+  outline: none;
+  z-index: 1;
+}
+
+.unitLabel {
+  padding: var(--space-3) var(--space-3);
+  font-size: var(--text-body);
+  color: var(--neutral-600);
+  border: 1px solid var(--neutral-300);
+  border-left: none;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--neutral-50);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* Radio group for boolean — §8.5 */
+.radioGroup {
+  border: none;
+  padding: 0;
+  display: flex;
+  gap: var(--space-4);
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-body);
+  color: var(--neutral-800);
+  cursor: pointer;
+  min-height: 44px;
+}
