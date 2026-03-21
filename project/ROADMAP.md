@@ -121,7 +121,7 @@ Pin the Node version so all contributors and CI use the same runtime.
 
 **Goal:** Establish the RPM type system, domain I/O contract, and the pure deterministic algorithms that have no external dependencies: Labeling Law, IRI cleaning, Control Inference, deterministic ID generation, and canonical serialization.
 
-**Status:** In Progress
+**Status:** Complete
 
 **Layer:** 0 — `src/kernel/` only. No I/O, no network, no adapters.
 
@@ -374,22 +374,24 @@ Compose multiple intent clauses into a `CGP_c`. Pure function: composed query + 
 
 ### 1.10 Domain Tests — Phase 1
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 Write domain-specific tests for all Phase 1 kernel functions.
 
 **Acceptance Criteria:**
-- [ ] CT-08 — Labeling Law Priority Test (§33.3)
-- [ ] CT-09 — IRI Cleaning Algorithm and Quality Threshold Test (§33.4)
-- [ ] CT-10 — Control Inference Table Test (§33.5)
-- [ ] CT-12 — Dynamic Error Template Test (§33.7)
-- [ ] CT-13 — Quality Threshold Boundary Test (§33.8)
-- [ ] CT-14 — Narrative Synthesis Test (§33.9)
-- [ ] Unit tests for pattern expansion, deterministic ID generation, composition
-- [ ] Narrative generation benchmark test: verify ≤ 5ms per row, ≤ 125ms for 25 rows (Phase 1.8 performance budget)
-- [ ] All tests follow `tests/*.test.ts` convention
-- [ ] `npm test` passes all spec + domain tests
-- [ ] `npm run test:purity` passes
+- [x] CT-08 — Labeling Law Priority Test (§33.3) — `labeling-law.test.ts`
+- [x] CT-09 — IRI Cleaning Algorithm and Quality Threshold Test (§33.4) — `labeling-law.test.ts`
+- [x] CT-10 — Control Inference Table Test (§33.5) — `control-inference.test.ts`
+- [x] CT-12 — Dynamic Error Template Test (§33.7) — `error-translation.test.ts`
+- [x] CT-13 — Quality Threshold Boundary Test (§33.8) — `labeling-law.test.ts`
+- [x] CT-14 — Narrative Synthesis Test (§33.9) — `narrative.test.ts`
+- [x] Unit tests for pattern expansion (`expand.test.ts`), deterministic ID generation (`deterministic-id.test.ts`), composition (`compose.test.ts`)
+- [x] Narrative generation benchmark: ≤ 5ms/row, ≤ 125ms/25 rows — `phase1-integration.test.ts`
+- [x] Join anchor correctness: same subject, different intents → one anchor at subject IRI — `phase1-integration.test.ts`
+- [x] Full pipeline round-trip: expand → compose → narrative — `phase1-integration.test.ts`
+- [x] All tests follow `tests/*.test.ts` convention
+- [x] `npm test` passes: 203/203 tests across 12 test files
+- [x] `npm run test:purity` passes: 12 kernel files, no import violations
 
 **NOT in scope for Phase 1:**
 - SPARQL endpoint connectivity — that is Phase 2
