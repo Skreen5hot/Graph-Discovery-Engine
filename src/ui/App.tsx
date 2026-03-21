@@ -77,22 +77,21 @@ export function App() {
         // These keys already match the column headers. Use them directly.
         const values: Record<string, string> = { ...qr.bindings };
 
-        // Generate narrative
+        // Generate narrative using first available mapping
         const objectLabel = Object.values(qr.bindings)[0] ?? "";
-        const ui = firstMapping?.ui;
-        const pattern = firstMapping?.pattern;
+        const mapping0 = mappingDetails.find(Boolean);
         let narrativeSummary = `${subjectLabel} is linked to ${objectLabel}.`;
         let narrativePath: Array<{ role: string; label: string }> = [];
 
-        if (ui && pattern) {
+        if (mapping0?.ui && mapping0?.pattern) {
           try {
             const emptyClosure = { classes: new Map(), properties: new Map() };
             const narrative = generateNarrative(
               composed.clauses?.[0] ?? { "@context": {}, "@graph": [], provenance: { "@type": "Provenance", kernelVersion: "0.1.0", rulesApplied: [] } },
-              ui,
+              mapping0.ui,
               clauses[0].intent,
-              firstMapping.tier ?? 1,
-              pattern,
+              mapping0.tier ?? 1,
+              mapping0.pattern,
               emptyClosure,
               subjectLabel,
               objectLabel,
