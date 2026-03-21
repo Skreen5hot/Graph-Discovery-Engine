@@ -68,10 +68,11 @@ export function calculateSpecificity(
   // Tier ranking: Tier 1 = 0, Tier 2 = 1, Tier 3 = 2
   const tierRank = mapping.tier - 1;
 
-  // Combine: distance * 1000 + tierRank * 100 + registryPosition
+  // Combine: distance * 100_000 + tierRank * 10_000 + registryPosition
   // This ensures distance is the primary sort key, tier is secondary,
-  // and position is the stable tiebreaker
-  return minDistance * 1000 + tierRank * 100 + registryPosition;
+  // and position is the stable tiebreaker. Bucket widths accommodate
+  // up to 10,000 mappings per subject type before overflow.
+  return minDistance * 100_000 + tierRank * 10_000 + registryPosition;
 }
 
 /**

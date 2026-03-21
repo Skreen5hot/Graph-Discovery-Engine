@@ -292,10 +292,31 @@ try {
     stubTypeResolver,
     0,
   );
-  ok(score < 1000, `Exact match score should be < 1000, got ${score}`);
+  ok(score < 100_000, `Exact match score should be < 100_000, got ${score}`);
   pass("Exact match: distance 0 → low score (high rank)");
 } catch (error) {
   fail("Exact match scoring", error);
+}
+
+// Bucket overflow: Tier 1 at position 101 must still rank before Tier 2 at position 0
+try {
+  const tier1Score = calculateSpecificity(
+    { ...catalystMapping, tier: 1 },
+    ["mfg:ChemicalProcess"],
+    stubTypeResolver,
+    101,
+  );
+  const tier2Score = calculateSpecificity(
+    { ...catalystMapping, tier: 2 },
+    ["mfg:ChemicalProcess"],
+    stubTypeResolver,
+    0,
+  );
+  ok(tier1Score < tier2Score,
+    `Tier 1 at position 101 (${tier1Score}) must rank before Tier 2 at position 0 (${tier2Score})`);
+  pass("Bucket overflow: Tier 1 at position 101 still ranks before Tier 2 at position 0");
+} catch (error) {
+  fail("Bucket overflow", error);
 }
 
 // No subsumption relationship → max score
