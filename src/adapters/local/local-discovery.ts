@@ -41,6 +41,7 @@ export interface LocalDiscoveryOptions {
 export type LocalDiscoveryResult = AssemblyResult & {
   closure: OntologyClosure;
   typeResolver: TypeResolver;
+  store: LocalTripleStore;
 };
 
 // ---------------------------------------------------------------------------
@@ -334,5 +335,6 @@ export async function runLocalDiscovery(
     ...assemblyResult,
     closure,
     typeResolver,
+    store,
   };
 }

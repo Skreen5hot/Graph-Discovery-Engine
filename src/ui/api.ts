@@ -54,3 +54,14 @@ export async function postCompose(clauses: any[], mode: string) {
     body: JSON.stringify({ clauses, composition: { mode } }),
   });
 }
+
+export async function postExecute(cgpC: any, subjectType: string) {
+  return apiFetch<any>("/rpm/execute", {
+    method: "POST",
+    body: JSON.stringify({ cgpC, subjectType }),
+  });
+}
+
+export async function searchEntities(rangeClass: string, query: string) {
+  return apiFetch<any>(`/rpm/entity-search?type=${encodeURIComponent(rangeClass)}&q=${encodeURIComponent(query)}`);
+}

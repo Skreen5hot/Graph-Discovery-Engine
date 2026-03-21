@@ -3,7 +3,7 @@ import { SubjectSelection } from "./screens/SubjectSelection.js";
 import { QueryBuilder } from "./screens/QueryBuilder.js";
 import { QueryReview } from "./screens/QueryReview.js";
 import { ResultsView } from "./screens/ResultsView.js";
-import { postCompose, fetchCatalogEntry } from "./api.js";
+import { postCompose, postExecute, fetchCatalogEntry } from "./api.js";
 import type { ClauseData } from "./screens/IntentDetailPanel.js";
 
 // The one permitted kernel import in the UI — generateNarrative is pure, no I/O
@@ -63,48 +63,46 @@ export function App() {
         clauses.map((c) => fetchCatalogEntry(c.intent).catch(() => null)),
       );
 
-      // Build result rows from composed CGP
-      const resultRows = (composed.clauses ?? []).map((cgp: any, i: number) => {
-        const graph = cgp["@graph"] ?? [];
-        const mapping = mappingDetails[i];
-        const ui = mapping?.ui;
-        const pattern = mapping?.pattern;
+      // Execute the composed query against the triple store
+      const executeResult = await postExecute(composed, selectedType!.classIri);
+      const queryResults: Array<{ subjectIri: string; bindings: Record<string, string> }> =
+        executeResult.results ?? [];
 
-        // Find subject node (non-blank-node)
-        const subjectNode = graph.find((n: any) => !String(n["@id"]).startsWith("_:"));
-        const subjectId = subjectNode?.["@id"] ?? "";
-        const subjectLabel = resolveDisplayLabel(subjectId, ui?.subjectLabel ?? selectedType!.label);
+      // Build result rows from QueryResult[]
+      const resultRows = queryResults.map((qr, i) => {
+        const subjectLabel = resolveDisplayLabel(qr.subjectIri, selectedType!.label);
 
-        // Find bound output node (has rpm:role)
-        const boundNode = graph.find((n: any) => n["rpm:role"]);
-        const boundId = boundNode?.["@id"] ?? "";
-        const outputBindLabel = ui?.outputBinds?.[0]?.label ?? "Result";
-        const objectLabel = resolveDisplayLabel(boundId, outputBindLabel);
-
-        // Build cell values: outputBind.label → resolved bound node label
+        // Cell values: map outputBind.label → binding value by role
         const values: Record<string, string> = {};
-        if (ui?.outputBinds) {
-          for (const ob of ui.outputBinds) {
-            const roleNode = graph.find((n: any) => n["rpm:role"] === ob.role);
-            values[ob.label] = roleNode
-              ? resolveDisplayLabel(roleNode["@id"], ob.label)
-              : "";
+        const firstMapping = mappingDetails.find(Boolean);
+        if (firstMapping?.ui?.outputBinds) {
+          for (const ob of firstMapping.ui.outputBinds) {
+            values[ob.label] = qr.bindings[ob.role] ?? "";
+          }
+        }
+        // Also include any bindings not covered by outputBinds
+        for (const [role, value] of Object.entries(qr.bindings)) {
+          const existingKey = Object.keys(values).find((k) => values[k] === value);
+          if (!existingKey) {
+            values[role] = value;
           }
         }
 
-        // Generate narrative using the kernel function
+        // Generate narrative
+        const objectLabel = qr.bindings["target"] ?? Object.values(qr.bindings)[0] ?? "";
+        const ui = firstMapping?.ui;
+        const pattern = firstMapping?.pattern;
         let narrativeSummary = `${subjectLabel} is linked to ${objectLabel}.`;
         let narrativePath: Array<{ role: string; label: string }> = [];
 
         if (ui && pattern) {
           try {
-            // Empty closure — labels resolved via IRI cleaning fallback
             const emptyClosure = { classes: new Map(), properties: new Map() };
             const narrative = generateNarrative(
-              cgp,
+              composed.clauses?.[0] ?? { "@context": {}, "@graph": [], provenance: { "@type": "Provenance", kernelVersion: "0.1.0", rulesApplied: [] } },
               ui,
-              clauses[i].intent,
-              mapping.tier ?? 1,
+              clauses[0].intent,
+              firstMapping.tier ?? 1,
               pattern,
               emptyClosure,
               subjectLabel,
@@ -113,29 +111,31 @@ export function App() {
             narrativeSummary = narrative.narrativeSummary;
             narrativePath = narrative.narrativePath;
           } catch {
-            // Fallback if narrative generation fails
+            // Fallback
           }
         }
 
-        return {
-          id: i,
-          values,
-          narrativeSummary,
-          narrativePath,
-        };
+        return { id: i, values, narrativeSummary, narrativePath };
       });
 
-      // Column headers from outputBind.label (not intent label)
+      // Column headers from outputBind.label
       const columns = mappingDetails
         .filter(Boolean)
         .flatMap((m: any) => (m.ui?.outputBinds ?? []).map((ob: any) => ob.label))
         .filter((label: string, idx: number, arr: string[]) => arr.indexOf(label) === idx);
 
+      // If no outputBind columns, use binding keys from results
+      const effectiveColumns = columns.length > 0
+        ? columns
+        : queryResults.length > 0
+          ? Object.keys(queryResults[0].bindings)
+          : clauses.map((c) => c.label);
+
       setResults({
         rows: resultRows.length > 0 ? resultRows : [
           { id: 0, values: {}, narrativeSummary: `No results found for ${selectedType!.label}.`, narrativePath: [] },
         ],
-        columns: columns.length > 0 ? columns : clauses.map((c) => c.label),
+        columns: effectiveColumns,
       });
       setScreen("results");
     } catch (err) {

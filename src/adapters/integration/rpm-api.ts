@@ -28,6 +28,8 @@ import { rankBySpecificity } from "../../kernel/compose.js";
 import { translateError, buildTranslationContext } from "../../kernel/error-translation.js";
 import { generateOverrideId } from "../../kernel/deterministic-id.js";
 import { isRPMError } from "../../kernel/types.js";
+import { executeLocalQuery, searchEntities } from "../local/local-executor.js";
+import type { LocalTripleStore } from "../local/json-ld-loader.js";
 import type {
   MappingRegistry,
   MappingDefinition,
@@ -39,6 +41,7 @@ import type {
   OverrideEntry,
   Subject,
   CQO,
+  CGP_c,
   RPMContext,
 } from "../../kernel/types.js";
 
@@ -58,6 +61,8 @@ export interface ServerState {
   lastCrawlTimestamp: string;
   /** Callback to trigger a re-crawl. Adapter provides this. */
   onRefresh?: () => Promise<{ newMappingCount: number }>;
+  /** Present when running in local graph mode. Enables executeLocalQuery and entity search. */
+  localStore?: LocalTripleStore;
 }
 
 // ---------------------------------------------------------------------------
@@ -390,6 +395,27 @@ export function registerRpmRoutes(state: ServerState) {
     sendJson(res, 200, state.report);
   });
 
+  // ----- POST /rpm/execute -----
+  router.post("/rpm/execute", async (req, res) => {
+    const body = req.body as { cgpC?: CGP_c; subjectType?: string } | undefined;
+    if (!body?.cgpC) {
+      sendError(res, 400, "Request must include a 'cgpC' field.", "validation");
+      return;
+    }
+
+    if (!state.localStore) {
+      sendError(res, 501, "Query execution against a remote endpoint is not yet available.");
+      return;
+    }
+
+    try {
+      const results = executeLocalQuery(body.cgpC, state.localStore, state.closure, state.registry);
+      sendJson(res, 200, { results, count: results.length });
+    } catch {
+      sendError(res, 500, "An unexpected error occurred during query execution. Please contact your system administrator.");
+    }
+  });
+
   // ----- GET /rpm/entity-search -----
   router.get("/rpm/entity-search", async (req, res) => {
     const rangeClass = req.query.type;
@@ -401,9 +427,13 @@ export function registerRpmRoutes(state: ServerState) {
     }
 
     // Entity search is always live — never cached (§32.9.4).
-    // In production, this would execute a SPARQL query against the
-    // configured endpoint. For Phase 3, we return an empty result set
-    // with the correct response shape. Phase 6 wires the SPARQL connector.
+    if (state.localStore) {
+      const results = searchEntities(rangeClass, query, state.localStore, state.closure);
+      sendJson(res, 200, { results, query, rangeClass });
+      return;
+    }
+
+    // No local store — return empty (SPARQL mode, Phase 6)
     sendJson(res, 200, {
       results: [],
       query,

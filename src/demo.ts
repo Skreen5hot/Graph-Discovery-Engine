@@ -18,7 +18,7 @@ if (labelOverlayPath) {
   console.log(`Loading label overlay from ${labelOverlayPath}...`);
 }
 
-const { registry, catalog, report, closure, typeResolver } =
+const { registry, catalog, report, closure, typeResolver, store } =
   await runLocalDiscovery(graphPath, {
     skipTier3: false,
     endpointLabel: `local:${graphPath}`,
@@ -39,6 +39,7 @@ const state: ServerState = {
   overrideStore: { "@type": "rpm:OverrideStore", version: "2.1.0", overrides: [] },
   overrideStorePath: "./rpm-overrides-demo.json",
   lastCrawlTimestamp: new Date().toISOString(),
+  localStore: store,
 };
 
 const router = registerRpmRoutes(state);
