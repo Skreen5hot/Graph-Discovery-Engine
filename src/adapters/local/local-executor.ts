@@ -303,18 +303,21 @@ export function executeLocalQuery(
     }
 
     case "union": {
-      // OR: union all results, deduplicate by subject
-      const seen = new Set<string>();
-      const union: QueryResult[] = [];
+      // OR: union all results. When the same subject matches multiple
+      // clauses, merge bindings from all matching clauses (each clause
+      // contributes its outputBind.label-keyed bindings).
+      const unionMap = new Map<string, Record<string, string>>();
       for (const cr of clauseResults) {
         for (const r of cr) {
-          if (!seen.has(r.subjectIri)) {
-            seen.add(r.subjectIri);
-            union.push(r);
-          }
+          const existing = unionMap.get(r.subjectIri) ?? {};
+          Object.assign(existing, r.bindings);
+          unionMap.set(r.subjectIri, existing);
         }
       }
-      return union;
+      return [...unionMap.entries()].map(([subjectIri, bindings]) => ({
+        subjectIri,
+        bindings,
+      }));
     }
 
     case "targetToSubject": {

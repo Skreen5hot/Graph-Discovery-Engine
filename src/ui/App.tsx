@@ -128,7 +128,8 @@ export function App() {
       });
       setScreen("results");
     } catch (err) {
-      setError("An unexpected error occurred. Please contact your system administrator.");
+      console.error("Search error:", err);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred. Please contact your system administrator.");
     }
     setLoading(false);
   };
