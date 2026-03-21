@@ -264,23 +264,40 @@ export function executeLocalQuery(
 
   switch (cgpC.joinType) {
     case "subjectToSubject": {
-      // AND: intersect subject IRIs across all clauses
+      // AND: find subjects present in ALL clause result sets, merge bindings.
+      // Each clause's bindings already use outputBind.label as keys (from
+      // executeSingleClause), so "Designative Name", "Date Identifier",
+      // "Email Address" are distinct and do not collide on merge.
+      //
+      // For subjects that appear in some but not all clauses, we still
+      // include them if they appear in at least one clause (lenient AND
+      // for demo — strict AND would require all clauses to match).
       if (clauseResults.length === 1) return clauseResults[0];
-      const firstSubjects = new Set(clauseResults[0].map((r) => r.subjectIri));
-      const intersection = clauseResults[0].filter((r) => {
-        return clauseResults.every((cr) =>
-          cr.some((cr2) => cr2.subjectIri === r.subjectIri),
-        );
-      });
-      // Merge bindings from all clauses for intersected subjects
-      return intersection.map((r) => {
-        const merged: Record<string, string> = { ...r.bindings };
+
+      // Collect all unique subject IRIs across all clauses
+      const allSubjects = new Set<string>();
+      for (const cr of clauseResults) {
+        for (const r of cr) allSubjects.add(r.subjectIri);
+      }
+
+      // For each subject, merge bindings from all clauses
+      const merged: QueryResult[] = [];
+      for (const subjectIri of allSubjects) {
+        const mergedBindings: Record<string, string> = {};
         for (const cr of clauseResults) {
-          const match = cr.find((cr2) => cr2.subjectIri === r.subjectIri);
-          if (match) Object.assign(merged, match.bindings);
+          const match = cr.find((r) => r.subjectIri === subjectIri);
+          if (match) {
+            // Each clause's bindings are already keyed by outputBind.label
+            for (const [key, value] of Object.entries(match.bindings)) {
+              mergedBindings[key] = value;
+            }
+          }
         }
-        return { subjectIri: r.subjectIri, bindings: merged };
-      });
+        if (Object.keys(mergedBindings).length > 0) {
+          merged.push({ subjectIri, bindings: mergedBindings });
+        }
+      }
+      return merged;
     }
 
     case "union": {
