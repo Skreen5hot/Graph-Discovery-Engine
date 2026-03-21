@@ -72,24 +72,13 @@ export function App() {
       const resultRows = queryResults.map((qr, i) => {
         const subjectLabel = resolveDisplayLabel(qr.subjectIri, selectedType!.label);
 
-        // Cell values: map outputBind.label → binding value by role
-        const values: Record<string, string> = {};
-        const firstMapping = mappingDetails.find(Boolean);
-        if (firstMapping?.ui?.outputBinds) {
-          for (const ob of firstMapping.ui.outputBinds) {
-            values[ob.label] = qr.bindings[ob.role] ?? "";
-          }
-        }
-        // Also include any bindings not covered by outputBinds
-        for (const [role, value] of Object.entries(qr.bindings)) {
-          const existingKey = Object.keys(values).find((k) => values[k] === value);
-          if (!existingKey) {
-            values[role] = value;
-          }
-        }
+        // The executor returns bindings keyed by outputBind.label
+        // (e.g., "Date Identifier", "Email Address", "Designative Name").
+        // These keys already match the column headers. Use them directly.
+        const values: Record<string, string> = { ...qr.bindings };
 
         // Generate narrative
-        const objectLabel = qr.bindings["target"] ?? Object.values(qr.bindings)[0] ?? "";
+        const objectLabel = Object.values(qr.bindings)[0] ?? "";
         const ui = firstMapping?.ui;
         const pattern = firstMapping?.pattern;
         let narrativeSummary = `${subjectLabel} is linked to ${objectLabel}.`;
