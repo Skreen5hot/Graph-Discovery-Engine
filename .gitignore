@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-tests/
+dist-ui/
 *.tsbuildinfo
 unit-test-results.json
 .env

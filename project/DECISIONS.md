@@ -76,6 +76,88 @@
 
 ---
 
+## ADR-005: React 18 as Frontend Framework
+
+**Date:** 2026-03-21
+
+**Decision:** Use React 18 with TypeScript for the Query Builder UI (Phase 5.B).
+
+**Context:** The kernel is TypeScript throughout; Phase 1 types are the UI data contract. React has the best TypeScript integration, widest maintenance talent pool, and richest accessible component tooling for WCAG 2.1 AA requirements (focus trapping, ARIA live regions, screen reader testing). Vue and Svelte were considered — both capable but neither has React's depth of accessibility ecosystem. React 18 concurrent features support the loading states and narrative row stagger animations specified in UI Spec §14.
+
+**Consequences:**
+- All UI components in `src/ui/` as React TSX
+- React 18 concurrent features for Suspense-based loading states
+- Vite as build tool (see ADR-008)
+- `react` and `react-dom` added as runtime dependencies (Orchestrator-approved)
+
+---
+
+## ADR-006: CSS Custom Properties + CSS Modules
+
+**Date:** 2026-03-21
+
+**Decision:** Use CSS custom properties for design tokens and CSS Modules for component scoping. Do not use Tailwind.
+
+**Context:** The UI spec defines a precise design system — 8 spacing tokens, 17-stop color palette, 5 typography scales, 4 border radius tokens, 6 motion tokens. Tailwind's utility-first model works against this precision: fighting the framework to hit exact spec values instead of expressing them directly. CSS custom properties (`:root { --space-4: 16px; }`) are the natural home for design tokens from §5.5, §15–17. CSS Modules scope component styles without build step complexity.
+
+**Consequences:**
+- Design tokens defined as CSS custom properties in a root stylesheet
+- Component styles in `*.module.css` files co-located with components
+- No Tailwind dependency — direct CSS aligned with spec values
+- Portable, readable, exactly matching GDE-UI-SPEC-v2.1.md
+
+---
+
+## ADR-007: `src/ui/` Subdirectory Structure
+
+**Date:** 2026-03-21
+
+**Decision:** Place frontend code in `src/ui/` alongside `src/kernel/` and `src/adapters/`, not as a separate workspace package.
+
+**Context:** A separate NPM workspace adds package management complexity before a single component exists. The demo deadline favors simplicity. The import rule stands: `src/ui/` must not import from `src/kernel/` at runtime — only TypeScript type imports for annotation are permitted. All data flows through the Phase 3 HTTP API.
+
+**Consequences:**
+- Single `package.json` — no workspace configuration
+- `src/ui/` directory with React components, styles, and hooks
+- Vite config at project root or in `src/ui/`
+- Build produces static assets for GitHub Pages deployment
+- Purity check continues to verify `src/kernel/` has no UI imports
+
+---
+
+## ADR-008: Vite as Build Tool
+
+**Date:** 2026-03-21
+
+**Decision:** Use Vite as the frontend build tool for the Query Builder UI.
+
+**Context:** Vite handles TypeScript, CSS Modules, and environment variables (`VITE_API_BASE_URL`) without configuration overhead. It produces optimized static assets suitable for GitHub Pages deployment (Phase 6). HMR for development iteration speed. No competing bundler (webpack, esbuild standalone) offers this combination with less configuration.
+
+**Consequences:**
+- `vite` added as devDependency
+- `vite.config.ts` at project root
+- `VITE_API_BASE_URL` env var for API base URL (default `http://localhost:3000`)
+- `npm run build:ui` produces `dist-ui/` static assets
+- Phase 6.2 deploys `dist-ui/` to GitHub Pages via `actions/deploy-pages@v4`
+
+---
+
+## ADR-009: Defer Chained Search to Post-Launch (OQ-10)
+
+**Date:** 2026-03-21
+
+**Decision:** Defer the "Chained search" (targetToSubject) composition mode to post-launch. Hide the option entirely in the composition mode selector.
+
+**Context:** The demo graph has one Person and one Organization — no targetToSubject join is possible. Building and testing the chained search UI without a graph that exercises it produces untested code. The kernel's `rpmCompose` already supports the `targetToSubject` mode (Phase 1.9); only the UI rendering is deferred.
+
+**Consequences:**
+- Composition mode selector shows only "All must match" and "Any can match"
+- "Chained search" radio option is hidden, not shown disabled
+- No changes to kernel `compose.ts` or `types.ts`
+- Post-launch: when a graph with multiple entity types is available, unhide the option
+
+---
+
 <!--
   Add new decisions below. Use the format:
 

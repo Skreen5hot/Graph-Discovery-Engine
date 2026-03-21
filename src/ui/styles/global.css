@@ -1,0 +1,70 @@
+/**
+ * Global Styles — GDE Query Builder
+ *
+ * Base reset, typography, and layout. References design tokens.
+ */
+
+@import url("./tokens.css");
+
+/* Load IBM Plex fonts from Google Fonts CDN */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap");
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--neutral-800);
+  background-color: var(--neutral-50);
+}
+
+/* Typography */
+h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  line-height: var(--lh-h1);
+  font-weight: var(--weight-semibold);
+  color: var(--neutral-900);
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  line-height: var(--lh-h2);
+  font-weight: var(--weight-semibold);
+  color: var(--neutral-900);
+}
+
+h3 {
+  font-size: var(--text-h3);
+  line-height: var(--lh-h3);
+  font-weight: var(--weight-semibold);
+  color: var(--neutral-900);
+}
+
+/* Focus ring — WCAG 2.1 AA */
+:focus-visible {
+  outline: 2px solid var(--accent-500);
+  outline-offset: 2px;
+}
+
+/* Application container */
+.app-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  min-height: 100vh;
+}
