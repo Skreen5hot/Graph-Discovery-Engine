@@ -14,7 +14,6 @@
 
 import type {
   MappingDefinition,
-  MappingExposure,
   OntologyClosure,
   BranchStep,
   PatternStep,
@@ -23,7 +22,7 @@ import type {
   OutputBind,
   TypeResolver,
 } from "./types.js";
-import { resolveLabel, resolveHintWithSource, resolveGroup, extractLocalName } from "./labeling.js";
+import { resolveLabel, resolveGroup, extractLocalName } from "./labeling.js";
 import { inferControl } from "./control-inference.js";
 import type { PromotionLogEntry } from "./tier1-discovery.js";
 
@@ -306,7 +305,7 @@ export function generateTier3Mappings(
     for (const [pairKey, pathGroup] of pairGroups) {
       // §32.6.3 Rule 5: Skip if already covered by Tier 1/2
       if (existingPairs.has(pairKey)) {
-        for (const path of pathGroup) {
+        for (const _path of pathGroup) {
           promotionLog.push({
             shorthand: pairKey,
             exposure: "internal",
@@ -386,7 +385,7 @@ export function generateTier3Mappings(
       const capped = candidates.slice(config.maxCompoundIntentsPerPair);
 
       // Log capped candidates
-      for (const c of capped) {
+      for (const _c of capped) {
         promotionLog.push({
           shorthand: pairKey,
           exposure: "internal",
@@ -399,6 +398,11 @@ export function generateTier3Mappings(
       for (let rank = 0; rank < promoted.length; rank++) {
         const { path, frequency, anchor } = promoted[rank];
 
+        // Resolve the bare anchor label before disambiguation
+        const anchorResolution = anchor ? resolveLabel(anchor, closure) : null;
+        const bareAnchorLabel = anchorResolution?.status === "resolved"
+          ? anchorResolution.label : "Path";
+
         // §32.6.5: Compound label composition — checks cross-pair labels
         let label = composeCompoundLabel(anchor, path.hops, path.objectClass, closure, subjectClassUsedLabels);
 
@@ -406,7 +410,12 @@ export function generateTier3Mappings(
         if (subjectClassUsedLabels.has(label)) {
           label = `${label} (${Math.round(frequency * 100)}%)`;
         }
+
+        // Reserve both the disambiguated label AND the bare anchor label.
+        // This prevents later paths from claiming the bare anchor when
+        // earlier paths already used it with disambiguation suffixes.
         subjectClassUsedLabels.add(label);
+        subjectClassUsedLabels.add(bareAnchorLabel);
 
         // §32.6.6: Shorthand
         const shorthand = generateCompoundShorthand(
@@ -423,7 +432,6 @@ export function generateTier3Mappings(
         const ui = buildTier3UIBlock(
           label,
           path,
-          frequency,
           closure,
           typeResolver,
         );
@@ -486,7 +494,6 @@ function buildTier3Pattern(
 function buildTier3UIBlock(
   label: string,
   path: DiscoveredPath,
-  frequency: number,
   closure: OntologyClosure,
   typeResolver: TypeResolver,
 ): UIBlock {
@@ -525,7 +532,7 @@ function buildTier3UIBlock(
   return {
     label,
     labelSource: "compoundComposition",
-    description: `${subjectLabel} to ${resolvedRangeLabel} path via ${label}, present in ${Math.round(frequency * 100)}% of ${subjectLabel} instances.`,
+    description: `Finds ${resolvedRangeLabel.toLowerCase() || "results"} connected to this ${subjectLabel.toLowerCase() || "record"} via ${label}.`,
     group,
     groupSource: "domainClassLabel",
     examples: [],
