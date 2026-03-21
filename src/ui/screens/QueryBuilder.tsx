@@ -27,11 +27,12 @@ interface MappingDef {
 interface Props {
   subjectType: { classIri: string; label: string };
   onChangeType: () => void;
+  onReview?: (clauses: ClauseData[], mode: string) => void;
 }
 
 type CompositionMode = "subjectToSubject" | "union";
 
-export function QueryBuilder({ subjectType, onChangeType }: Props) {
+export function QueryBuilder({ subjectType, onChangeType, onReview }: Props) {
   const [mappings, setMappings] = useState<MappingDef[]>([]);
   const [compoundIntents, setCompoundIntents] = useState<MappingDef[]>([]);
   const [search, setSearch] = useState("");
@@ -110,6 +111,7 @@ export function QueryBuilder({ subjectType, onChangeType }: Props) {
           type="button"
           className={styles.reviewButton}
           disabled={!allRequiredFilled}
+          onClick={() => onReview?.(clauses, compositionMode)}
         >
           Review query →
         </button>
