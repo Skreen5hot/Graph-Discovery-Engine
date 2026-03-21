@@ -194,6 +194,16 @@ function buildClosureFromGraph(
       if (cls) cls.labels.push(annotation);
       const prop = properties.get(t.subject);
       if (prop) prop.labels.push(annotation);
+      // Also index labels on named individuals (entities not in classes or properties)
+      // so resolveLabel and resolveEntityLabel can find them.
+      if (!cls && !prop) {
+        let stub = classes.get(t.subject);
+        if (!stub) {
+          stub = { iri: t.subject, superClasses: [], labels: [], annotations: [] };
+          classes.set(t.subject, stub);
+        }
+        stub.labels.push(annotation);
+      }
     }
 
     if (ANNOTATION_PREDICATES.has(t.predicate)) {
