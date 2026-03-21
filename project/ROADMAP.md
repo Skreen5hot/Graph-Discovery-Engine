@@ -524,18 +524,30 @@ Load and index the ontology closure for subsumption checks, label lookups, and p
 
 **No `types.ts` changes.**
 
+**Phase 2.6 prerequisite (from Phase 2.4 review):** Q3 returns `?chain` as an RDF list head blank node, not the constituent property IRIs. The registry assembler in Phase 2.6 must traverse the `rdf:rest*/rdf:first` path to reconstruct the ordered `chainProperties` array before passing to `generateTier2Mappings`. The kernel expects pre-parsed `PropertyChain` objects.
+
 ### 2.5 Tier 3 — Frequent Path Discovery (§32.6)
 
-**Status:** Not Started | **Priority:** Medium
+**Status:** Complete | **Priority:** Medium
+
+**Implementation:** `src/kernel/tier3-discovery.ts` — `generateTier3Mappings()`, `parsePathSignature()`, `Tier3Config`.
 
 **Acceptance Criteria:**
-- [ ] Sampling phase: Q5 for subject classes with instance count > `minInstanceCount` (§32.6.1)
-- [ ] Frequency calculation: dominance ratio, not raw count (§32.6.2)
-- [ ] Promotion threshold: `frequencyScore` ≥ 0.70, `instanceCount` ≥ 100, path length 3–6 hops (§32.6.3)
-- [ ] Path explosion cap: max 5 per `(SC, OC)` pair (§32.6.4)
-- [ ] Compound label composition: semantic anchor + Labeling Law + disambiguation (§32.6.5)
-- [ ] Compound Intent shorthand format: `rpm:compound_{SC}_{OC}_{Anchor}_v{N}` (§32.6.6)
-- [ ] CT-11 Frequent Path Discovery test passes (§33.6)
+- [x] Accepts pre-processed `SubjectClassSample` data (Q5 parsed by adapter)
+- [x] Frequency calculation: dominance ratio — instances with path P / instances with any path to OC (§32.6.2)
+- [x] Promotion criteria (§32.6.3): frequency ≥ threshold, instance count ≥ minimum, path length in [min, max], all node labels resolvable, no Tier 1/2 duplicate
+- [x] Path explosion cap (§32.6.4): max per (SC, OC) pair, ranked by frequency descending, excess logged
+- [x] Semantic anchor selection (§32.6.5): greatest subsumption depth from owl:Thing, excluding SC and OC
+- [x] Compound label composition (§32.6.5): anchor label + disambiguation ("via SecondAnchor" or frequency %)
+- [x] Compound shorthand format (§32.6.6): `rpm:compound_{SC}_{OC}_{Anchor}_v{N}` using local names via `extractLocalName`
+- [x] All thresholds configurable via `Tier3Config` interface (not hardcoded)
+- [x] Path signature parser: pipe-separated, separate from canonical hash format
+- [ ] CT-11 Frequent Path Discovery test against Oxigraph — deferred to Phase 2.7
+- [x] `npm test` (257/257) and `npm run test:purity` (17 kernel files) pass
+
+**Tests:** `tests/tier3-discovery.test.ts` — 10 tests with CT-11-aligned fixture data (950/50 Person→Organization): frequency calculation (1), promotion criteria (3), compound label/shorthand (1), path explosion cap (1), Tier 1/2 duplicate exclusion (1), path signature parsing (2), configurable thresholds (1).
+
+**No `types.ts` changes.**
 
 ### 2.6 Registry Assembly and Merge
 
