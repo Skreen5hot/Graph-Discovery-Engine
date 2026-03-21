@@ -262,6 +262,8 @@ export function executeLocalQuery(
     executeSingleClause(cgp, store, closure, registry),
   );
 
+
+
   switch (cgpC.joinType) {
     case "subjectToSubject": {
       // AND: find subjects present in ALL clause result sets, merge bindings.
