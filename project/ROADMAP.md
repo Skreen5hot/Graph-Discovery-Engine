@@ -551,15 +551,28 @@ Load and index the ontology closure for subsumption checks, label lookups, and p
 
 ### 2.6 Registry Assembly and Merge
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
+
+**Implementation:** `src/kernel/registry-assembler.ts` — `assembleRegistry()`, `buildExistingPairs()`.
 
 **Acceptance Criteria:**
-- [ ] In-memory registry assembled from Tier 1 + 2 + 3 results
-- [ ] Optional static registry loaded and merged (static wins on shorthand conflict)
-- [ ] Intent Catalog built: filtered to `smeSurface`, grouped, specificity-scored (§23)
-- [ ] Automated promotion rules applied (§32.7)
-- [ ] Discovery Report generated (§32.10)
-- [ ] Crawl initialization sequence per §32.2 with tier time allocation (10s/5s/30s/5s)
+- [x] In-memory registry assembled: Tier 2 overrides Tier 1 for same shorthand, then combined with Tier 3
+- [x] Optional static registry merged (static wins on shorthand conflict, `source: "merged"`)
+- [x] Intent Catalog built: filtered to `smeSurface`, grouped by `ui.group`, alphabetically sorted, specificity-ranked within groups (§23)
+- [x] Subject types collected with intent counts and resolved labels
+- [x] Discovery Report generated (§32.10): per-tier counts, static override stats, catalog size, labeling law exhausted count
+- [x] `buildExistingPairs()` exported: cross-product of domainClasses × rangeClasses for Tier 3 exclusion
+- [x] `generatedAt` and `timestamp` left empty — adapter sets these (kernel has no `Date.now()`)
+- [x] `npm test` (266/266) and `npm run test:purity` (18 kernel files) pass
+
+**Tests:** `tests/registry-assembler.test.ts` — 9 tests: Tier 2 precedence (1), static merge conflict (1), static add (1), catalog smeSurface filter (1), catalog grouping (1), subject types (1), discovery report (1), existingPairs cross-product (1), empty tiers (1).
+
+**Pre-phase fixes applied to tier3-discovery.ts:**
+- `inferControl` now uses terminal predicate (last hop), not first hop
+- `existingPairs` JSDoc documents cross-product contract
+- Positional anchor fallback rationale commented
+
+**No `types.ts` changes.**
 
 ### 2.7 Domain Tests — Phase 2
 

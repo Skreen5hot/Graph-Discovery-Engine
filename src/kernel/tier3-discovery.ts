@@ -147,8 +147,11 @@ function findSemanticAnchor(
     }
   }
 
-  // If no depth was found (classes not connected to owl:Thing),
-  // fall back to the last intermediate class (most specific by position)
+  // If no depth was found (classes not connected to owl:Thing in the closure),
+  // fall back to the last intermediate class. Positional last is the right
+  // choice because multi-hop paths traverse from general to specific —
+  // the deepest node in the path sequence is typically the most semantically
+  // specific intermediate class.
   if (bestAnchor === undefined && candidates.length > 0) {
     bestAnchor = candidates[candidates.length - 1];
   }
@@ -251,7 +254,11 @@ export function parsePathSignature(signature: string): PathHop[] {
  * @param samples - Pre-processed sampling data per subject class
  * @param closure - Ontology closure for label resolution
  * @param typeResolver - For semantic anchor depth calculation
- * @param existingPairs - Set of "(SC, OC)" strings already covered by Tier 1/2 (§32.6.3 Rule 5)
+ * @param existingPairs - Set of "${subjectClass}|${objectClass}" strings already
+ *   covered by Tier 1/2 (§32.6.3 Rule 5). Built as a cross-product of
+ *   domainClasses × rangeClasses from all Tier 1/2 mappings. A Tier 3 path
+ *   connecting the same (SC, OC) class pair is excluded at the pair level,
+ *   not the shorthand level.
  * @param config - Configurable thresholds
  * @returns Tier 3 mappings and promotion log
  */
@@ -473,7 +480,10 @@ function buildTier3UIBlock(
 
   const group = resolveGroup(path.subjectClass, closure);
 
-  const controlResult = inferControl(path.objectClass, path.hops[0]?.predicate ?? "", closure, typeResolver);
+  // Unit inference operates on the terminal predicate — the one connecting
+  // the penultimate node to the object class — not the first hop predicate.
+  const terminalPredicate = path.hops[path.hops.length - 1]?.predicate ?? "";
+  const controlResult = inferControl(path.objectClass, terminalPredicate, closure, typeResolver);
 
   const inputParam: InputParameter = {
     id: `${extractLocalName(path.objectClass)}-filter`,
