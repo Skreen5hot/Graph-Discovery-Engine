@@ -182,23 +182,29 @@ Implement the normative label resolution algorithm. This is a pure function: IRI
 **Tests:** `tests/labeling-law.test.ts` — 39 tests covering CT-08, CT-09 Parts A & B, CT-13, language preference, hint resolution, auto-grouping, and extractLocalName.
 
 **Implementation notes:**
-- Step 3 regex restricted to lowercase-to-uppercase only (not digit-to-uppercase). RPM §30.4 says "lowercase letter or digit" but CT-09 Part B normative output for `VALVE_3B` → `Valve 3B` proves digit-to-uppercase splits must NOT fire.
-- Title case preserves short all-uppercase tokens (≤3 chars) as acronyms: `CCO`, `BFO`, `ID` stay uppercase. Longer all-uppercase words get standard title case: `TANK` → `Tank`, `VALVE` → `Valve`.
+- Step 3 regex restricted to lowercase-to-uppercase only (not digit-to-uppercase). RPM §30.4 says "lowercase letter or digit" but CT-09 Part B normative output for `VALVE_3B` → `Valve 3B` proves digit-to-uppercase splits must NOT fire. **Spec maintenance flag:** §30.4 Step 3 should be corrected to read "lowercase letter" only, dropping the "or digit" clause.
+- Title case preserves short all-uppercase tokens (≤3 chars) as acronyms: `CCO`, `BFO`, `ID` stay uppercase. Longer all-uppercase words get standard title case: `TANK` → `Tank`, `VALVE` → `Valve`. **Phase 3 validation note:** the ≤3-char acronym rule also preserves 2-char tokens like `UK`, `US`, `EU` — likely correct for manufacturing/procurement graphs but should be validated against real graph data when Tier 1 discovery runs.
 
 ### 1.3 Control Inference (§31)
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 Implement the XSD-to-UI component mapping. Pure function: range type in → `inputType`, `filterOp`, `via`, `inputTypeSource` out. The UI layer (Phase 5) renders fields based on these inferred values — see UI Spec §8.5 and §12.3.
 
+**Implementation:** `src/kernel/control-inference.ts` — all functions named, pure, deterministic.
+
 **Acceptance Criteria:**
-- [ ] Full XSD-to-UI mapping table implemented (§31.2) — all 23 range types
-- [ ] Enumeration detection implemented (§31.3): `owl:oneOf` → `select` (max 20 options)
-- [ ] ObjectProperty literal mode implemented (§31.4): ICE subclass → `via: "ice"`, otherwise `edge → node → bind`
-- [ ] Unit inference implemented (§31.5): `qudt:unit`, `om:unit`, comment pattern matching
-- [ ] `inputTypeSource` recorded for every inference (`xsdMapping`, `rangeIsObjectProperty`, `enumerationDetected`, `noRangeFallback`)
-- [ ] All 6 CT-10 test cases pass
-- [ ] `npm test` and `npm run test:purity` pass
+- [x] Full XSD-to-UI mapping table implemented (§31.2) — all 23 range types
+- [x] Enumeration detection implemented (§31.3): `owl:oneOf` → `select` (max 20 options)
+- [x] ObjectProperty literal mode implemented (§31.4): ICE subclass → `via: "ice"`, otherwise `edge → node → bind`
+- [x] Unit inference implemented (§31.5): `qudt:unit`, `om:unit`, comment pattern matching
+- [x] `inputTypeSource` recorded for every inference (`xsdMapping`, `rangeIsObjectProperty`, `enumerationDetected`, `noRangeFallback`)
+- [x] All 6 CT-10 test cases pass
+- [x] `npm test` (78/78) and `npm run test:purity` (6 kernel files) pass
+
+**Tests:** `tests/control-inference.test.ts` — 33 tests covering CT-10 (6 rows), all 18 extended XSD types, enumeration detection (≤20 / >20 / xsd:token override), ICE mode, unit inference (qudt annotation, comment pattern, absent), and via:direct verification.
+
+**Pre-implementation type addition:** `EnumeratedIndividual` type and `OntologyClass.enumeratedIndividuals` field added to support §31.3 enumeration detection.
 
 ### 1.4 Deterministic ID Generation (§9)
 

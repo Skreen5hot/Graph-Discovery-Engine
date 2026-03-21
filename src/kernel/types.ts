@@ -440,6 +440,12 @@ export interface LabelAnnotation {
   predicate: string;
 }
 
+/** A named individual in an owl:oneOf enumeration (RPM §31.3). */
+export interface EnumeratedIndividual {
+  iri: string;
+  label: string;
+}
+
 /** A class in the ontology closure. */
 export interface OntologyClass {
   iri: string;
@@ -454,6 +460,14 @@ export interface OntologyClass {
    * skos:scopeNote alongside rdfs:comment to populate this array fully.
    */
   annotations: LabelAnnotation[];
+  /**
+   * Named individuals from owl:oneOf on this class (RPM §31.3).
+   * When present and length ≤ 20, Control Inference overrides inputType to "select"
+   * with selectOptions derived from these individuals' Labeling Law resolved labels.
+   * When length > 20, falls back to "entitySearch".
+   * Undefined or empty array means no enumeration detected.
+   */
+  enumeratedIndividuals?: EnumeratedIndividual[];
 }
 
 /** A property in the ontology closure. */
