@@ -323,21 +323,27 @@ Implement structured error objects and the Dynamic Template Engine. The `Transla
 
 ### 1.8 Narrative Synthesis Layer (§34)
 
-**Status:** Not Started | **Priority:** Medium
+**Status:** Complete | **Priority:** Medium
 
 Transform resolved CGPs into plain-language summaries. Pure function: CGP + UI block → `NarrativeResult`. The UI renders `narrativeSummary` as a subtitle per result row and `narrativePath` as a breadcrumb strip (UI Spec §10.3–10.4, §12.4–12.5).
 
+**Implementation:** `src/kernel/narrative.ts` — 6 exported functions, all pure and deterministic.
+
 **Acceptance Criteria:**
-- [ ] Subject label resolution (§34.3 Step 1): 4-level fallback
-- [ ] Predicate verb conversion (§34.3 Step 2): "Has X" → "has", "Employed by" → "is employed by", etc.
-- [ ] Object label resolution (§34.3 Step 3)
-- [ ] Summary sentence composition (§34.3 Step 4): Tier 1 vs. Tier 2/3 templates
-- [ ] `narrativePath` assembly (§34.3 Step 5)
-- [ ] Firewall enforcement (§34.4): prohibited-term scan on all narrative output
-- [ ] Multi-clause narrative modes: sequential AND, parallel OR, chained (§34.5)
-- [ ] **Performance budget:** ≤ 5ms per row for narrative generation (pure string operations, no network). A page of 25 rows MUST complete narrative generation in ≤ 125ms total. This is the kernel's share of the 10-second query execution budget (UI Spec §23.3). Measured by benchmark test included in Phase 1.10.
-- [ ] CT-14 test cases pass
-- [ ] `npm test` and `npm run test:purity` pass
+- [x] Subject label resolution (§34.3 Step 1): Labeling Law → IRI cleaning → class-level fallback; blank nodes go directly to class fallback
+- [x] Predicate verb conversion (§34.3 Step 2): 3 named rules ("Has X" → "has", "X by" → "is X by", "Is X" → lowercase) + "is linked to via" fallback
+- [x] Object label resolution (§34.3 Step 3): same priority as Step 1
+- [x] Summary sentence composition (§34.3 Step 4): Tier 1 `"{S} {V} {O}."` vs Tier 2/3 `"{S} {V} {O} via {anchor}."` with anchor-equals-verb omission
+- [x] `narrativePath` assembly (§34.3 Step 5): predicate/intermediate/object roles from pattern walk
+- [x] Firewall enforcement (§34.4): `containsProhibitedTerm` scan on narrativeSummary + all path labels; prohibited entries removed, shorter correct sentence preferred; never produces TranslatedError
+- [x] Multi-clause narrative modes (§34.5): sequential (AND standalone), parallel (OR with prefix), chained (targetToSubject with "→ whose")
+- [ ] **Performance budget:** ≤ 5ms per row — deferred to Phase 1.10 benchmark test
+- [x] CT-14 test cases pass (subject + verb + object present, no prohibited terms, ends with period)
+- [x] `npm test` (187/187) and `npm run test:purity` (11 kernel files) pass
+
+**Tests:** `tests/narrative.test.ts` — 22 tests covering verb conversion (7 rules), entity label resolution (3 including blank node fallback), summary composition (4 tiers/anchors), narrativePath assembly (1 Tier 1), CT-14 (1 full narrative), firewall enforcement (2 — prohibited term removal + empty fallback), multi-clause modes (4 — AND/OR/chained/empty).
+
+**No `types.ts` changes.**
 
 ### 1.9 Query Composition Model (§24)
 
