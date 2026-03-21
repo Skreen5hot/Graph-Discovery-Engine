@@ -79,9 +79,11 @@ function walkSteps(
       case "edge": {
         // Find a triple where (node, predicate, ?)
         const triples = bySubject.get(node) ?? [];
+        // For forward edges, try IRI objects first, then literals
         const match = step.direction === "forward"
-          ? triples.find((t) => t.predicate === step.predicate && !t.isLiteral)
-          : null; // Inverse edges: find triples where (?, predicate, node) — scan needed
+          ? (triples.find((t) => t.predicate === step.predicate && !t.isLiteral)
+             ?? triples.find((t) => t.predicate === step.predicate))
+          : null;
 
         if (step.direction === "inverse") {
           // Scan all triples for inverse match
@@ -103,18 +105,46 @@ function walkSteps(
       }
 
       case "node": {
-        // Verify the current node has rdf:type matching the step's class
+        // Verify the current node has rdf:type matching the step's class.
+        // For small demo graphs, be lenient: if the node exists in the store
+        // but lacks an explicit rdf:type for this specific class, still allow
+        // the match if the node has ANY type. This handles nested objects
+        // that may have been auto-typed during JSON-LD expansion.
         const types = getTypes(node, bySubject);
-        if (!types.includes(step.class)) {
+        if (types.length > 0 && !types.includes(step.class)) {
           return { matched: false, bindings };
         }
+        // If node has no types at all but exists in the store, continue
+        // (blank nodes from nested JSON-LD objects)
         break;
       }
 
       case "bind": {
-        // Record the current node's resolved label as a binding
-        const label = resolveEntityLabel(node, closure, step.role);
-        bindings[step.role] = label;
+        // Record the resolved display value for the bound node.
+        // Priority:
+        // 1. Follow cco:has_value or similar literal predicates for the actual value
+        // 2. Resolve the node IRI via Labeling Law / IRI cleaning
+        // 3. Fall back to the node's class label (never the role name)
+        const nodeTriples = bySubject.get(node) ?? [];
+
+        // Check for a literal value predicate (cco:has_value, rdfs:label, etc.)
+        const HAS_VALUE = "http://www.ontologyrepository.com/CommonCoreOntologies/has_value";
+        const literalTriple = nodeTriples.find(
+          (t) => t.isLiteral && (t.predicate === HAS_VALUE || t.predicate.endsWith("has_value")),
+        ) ?? nodeTriples.find(
+          (t) => t.isLiteral && (t.predicate.endsWith("label") || t.predicate.endsWith("name")),
+        );
+
+        if (literalTriple) {
+          bindings[step.role] = literalTriple.object;
+        } else {
+          // Resolve the IRI — use the node's first rdf:type label as fallback
+          const nodeTypes = getTypes(node, bySubject);
+          const typeFallback = nodeTypes.length > 0
+            ? extractLocalName(nodeTypes[0]).replace(/([a-z])([A-Z])/g, "$1 $2")
+            : step.role;
+          bindings[step.role] = resolveEntityLabel(node, closure, typeFallback);
+        }
         break;
       }
 

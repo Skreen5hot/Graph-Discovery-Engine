@@ -3,7 +3,7 @@
  * GDE-UI-SPEC-v2.1.md §10
  */
 
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import styles from "./ResultsView.module.css";
 
 interface NarrativePathEntry {
@@ -88,6 +88,7 @@ export function ResultsView({ results, columns, subjectLabel, onRefine }: Props)
           className={styles.pageSizeSelect}
           value={pageSize}
           onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+          aria-label="Results per page"
         >
           <option value={10}>10 per page</option>
           <option value={25}>25 per page</option>
@@ -116,15 +117,15 @@ export function ResultsView({ results, columns, subjectLabel, onRefine }: Props)
         </thead>
         <tbody>
           {paged.map((row, i) => (
-            <>
-              <tr key={row.id} className={styles.dataRow}>
+            <Fragment key={row.id ?? i}>
+              <tr className={styles.dataRow}>
                 <td className={styles.rowNum}>{page * pageSize + i + 1}</td>
                 {columns.map((col) => (
                   <td key={col} className={styles.cell}>{row.values[col] ?? ""}</td>
                 ))}
               </tr>
               {/* NarrativeSummary row — §10.3, §12.4 */}
-              <tr key={`${row.id}-narrative`} className={styles.narrativeRow}>
+              <tr className={styles.narrativeRow}>
                 <td colSpan={columns.length + 1}>
                   <p className={styles.narrativeSummary}>{row.narrativeSummary}</p>
                   <button
@@ -153,7 +154,7 @@ export function ResultsView({ results, columns, subjectLabel, onRefine }: Props)
                   )}
                 </td>
               </tr>
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>
