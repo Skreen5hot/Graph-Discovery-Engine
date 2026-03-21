@@ -237,15 +237,38 @@ SHA-256 blank node IDs. Pure function: mapping shorthand + structural inputs →
 
 ### 1.5 Canonical JSON-LD Serializer
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 Extend the existing `src/kernel/canonicalize.ts` to handle CGP-specific output requirements.
 
+**Implementation:** `src/kernel/cgp-serializer.ts` — builds on `canonicalize.ts` (key sorting) and `deterministic-id.ts` (blank node IDs).
+
 **Acceptance Criteria:**
-- [ ] CGP output includes required `@context`, transformation fields, and `provenance`
-- [ ] Recursively sorted keys (existing behavior preserved)
-- [ ] Snapshot test updated and passing
-- [ ] `npm test` and `npm run test:purity` pass
+- [x] CGP output includes required `@context` (embedded, resolved — see SPEC.md §4), `@graph`, and `provenance`
+- [x] `@graph` nodes sorted by `@id` lexicographically (RPM §13 normalized ordering)
+- [x] Recursively sorted keys via `stableStringify` round-trip
+- [x] Step path tracking through branch recursion: dot-separated indices (e.g., "0", "0.1", "0.1.2")
+- [x] Tier 1 expansion test: subject → edge → node → bind produces correct CGP with blank node IDs
+- [x] Nested branch expansion test: 4-hop Tier 3 pattern produces 4 nodes with distinct blank node IDs and correct types
+- [x] Determinism: identical inputs produce identical JSON strings
+- [x] Snapshot test unchanged (identity transform still in place — examples deferred to Phase 1.6)
+- [x] `npm test` (123/123) and `npm run test:purity` (8 kernel files) pass
+
+**Tests:** `tests/cgp-serializer.test.ts` — 19 tests covering step path building, @graph ordering, provenance, serializeCGP, Tier 1 expansion, nested branch expansion (Tier 3-like), ordering determinism, CGP_CONTEXT, and stringifyCGP modes.
+
+**Exported functions:**
+- `expandPatternToCGP(subject, intent, mappingShorthand, pattern, rulesApplied)` — main entry for Phase 1.6
+- `serializeCGP(nodes, rulesApplied)` — assemble nodes into canonical CGP document
+- `walkPatternSteps(steps, parentPath, parentNodeId, branchName, ctx)` — recursive pattern walker
+- `normalizeGraph(nodes)` — sort @graph by @id
+- `buildStepPath(parentPath, stepIndex)` — step path string builder
+- `buildProvenance(rulesApplied)` — provenance factory
+- `stringifyCGP(cgp, pretty?)` — canonical JSON string output
+- `CGP_CONTEXT` — embedded @context object
+
+**`@context` decision resolved:** Embedded context with `rpm`, `rdf`, `rdfs`, `owl`, `xsd`, `skos` prefixes. Documented in SPEC.md §4. Production contexts may extend with domain prefixes.
+
+**No `types.ts` changes in this phase.**
 
 ### 1.6 Pattern Grammar and Recursive Expander (§6, §7)
 

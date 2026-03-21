@@ -163,9 +163,20 @@ All types are defined in `src/kernel/types.ts`. Key structures:
 
 ## 4. JSON-LD Context
 
-**Decision pending:** Embedded vs. remote `@context`. The kernel produces JSON-LD with an embedded context by default. The `@context` structure will be defined when Phase 1.6 implements the pattern expander.
+**Decision: Embedded context.** CGP output uses an embedded `@context` object (not a remote URL). Defined in `src/kernel/cgp-serializer.ts` as `CGP_CONTEXT`.
 
-Current identity transform uses `"@context": "https://schema.org"`. The RPM context namespace is `"rpm": "https://spec.example.org/rpm/v2/"` (RPM §5.2).
+```typescript
+const CGP_CONTEXT = {
+  rpm:  "https://spec.example.org/rpm/v2/",
+  rdf:  "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#",
+  owl:  "http://www.w3.org/2002/07/owl#",
+  xsd:  "http://www.w3.org/2001/XMLSchema#",
+  skos: "http://www.w3.org/2004/02/skos/core#",
+};
+```
+
+Production contexts may extend this with domain-specific prefixes (e.g., `mfg`, `cco`). The identity transform's `"@context": "https://schema.org"` remains in the template snapshot test and will be replaced when Phase 1.6 updates the examples.
 
 ---
 
