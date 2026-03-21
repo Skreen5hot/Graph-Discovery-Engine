@@ -3,9 +3,10 @@
  * GDE-UI-SPEC-v2.1.md §6
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { fetchSubjectTypes, type SubjectTypeEntry } from "../api.js";
 import { useDebounce } from "../hooks/useDebounce.js";
+import { GraphUpload } from "../components/GraphUpload.js";
 import styles from "./SubjectSelection.module.css";
 
 interface Props {
@@ -14,17 +15,19 @@ interface Props {
 
 export function SubjectSelection({ onSelect }: Props) {
   const [types, setTypes] = useState<SubjectTypeEntry[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [showAll, setShowAll] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
+  const loadTypes = useCallback(() => {
+    setLoading(true);
     fetchSubjectTypes().then((data) => {
       setTypes(data.subjectTypes);
       setLoading(false);
     });
   }, []);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { loadTypes(); }, [loadTypes]);
 
   const debouncedSearch = useDebounce(search, 150);
   const filtered = types.filter((t) =>
@@ -112,6 +115,8 @@ export function SubjectSelection({ onSelect }: Props) {
           ? `Find ${selectedEntry.label} records →`
           : "Select a record type to continue"}
       </button>
+
+      <GraphUpload onDiscoveryComplete={loadTypes} />
     </div>
   );
 }

@@ -19,8 +19,10 @@
  * - GET  /rpm/entity-search         — live entity search
  */
 
-import type { ServerResponse } from "node:http";
-import { readFile, writeFile } from "node:fs/promises";
+import type { ServerResponse, IncomingMessage } from "node:http";
+import { readFile, writeFile, unlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { createRouter, sendJson, sendError, type ParsedRequest } from "./http-server.js";
 import { rpmExpand } from "../../kernel/expand.js";
 import { rpmCompose } from "../../kernel/compose.js";
@@ -29,6 +31,7 @@ import { translateError, buildTranslationContext } from "../../kernel/error-tran
 import { generateOverrideId } from "../../kernel/deterministic-id.js";
 import { isRPMError } from "../../kernel/types.js";
 import { executeLocalQuery, searchEntities } from "../local/local-executor.js";
+import { runLocalDiscovery } from "../local/local-discovery.js";
 import type { LocalTripleStore } from "../local/json-ld-loader.js";
 import type {
   MappingRegistry,
@@ -131,6 +134,65 @@ function applyOverrides(
  * @param state - Mutable server state (registry, catalog, closure, etc.)
  * @returns The configured router
  */
+// ---------------------------------------------------------------------------
+// Multipart Helpers (for graph upload)
+// ---------------------------------------------------------------------------
+
+/** Read the full request body as a Buffer. */
+function readRawBody(req: IncomingMessage): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (chunk: Buffer) => chunks.push(chunk));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+
+/**
+ * Extract the file content from a multipart/form-data body.
+ * Minimal parser: handles a single file field only.
+ */
+function extractMultipartFile(body: Buffer, contentType: string): string {
+  // Extract boundary from Content-Type
+  const boundaryMatch = contentType.match(/boundary=([^\s;]+)/);
+  if (!boundaryMatch) return body.toString("utf8");
+
+  const boundary = boundaryMatch[1];
+  const bodyStr = body.toString("utf8");
+
+  // Split on boundary
+  const parts = bodyStr.split(`--${boundary}`);
+
+  // Find the part with file content (skip preamble and epilogue)
+  for (const part of parts) {
+    if (part.trim() === "" || part.trim() === "--") continue;
+
+    // Find the double CRLF that separates headers from body
+    const headerEnd = part.indexOf("\r\n\r\n");
+    if (headerEnd === -1) continue;
+
+    const headers = part.substring(0, headerEnd);
+    if (headers.includes("Content-Disposition") && headers.includes("filename")) {
+      return part.substring(headerEnd + 4).replace(/\r\n$/, "");
+    }
+  }
+
+  // Fallback: return everything after the first double CRLF
+  const firstPart = parts.find((p) => p.includes("Content-Disposition"));
+  if (firstPart) {
+    const headerEnd = firstPart.indexOf("\r\n\r\n");
+    if (headerEnd !== -1) {
+      return firstPart.substring(headerEnd + 4).replace(/\r\n$/, "");
+    }
+  }
+
+  return body.toString("utf8");
+}
+
+// ---------------------------------------------------------------------------
+// Route Registration
+// ---------------------------------------------------------------------------
+
 export function registerRpmRoutes(state: ServerState) {
   const router = createRouter();
 
@@ -439,6 +501,73 @@ export function registerRpmRoutes(state: ServerState) {
       query,
       rangeClass,
     });
+  });
+
+  // ----- POST /rpm/upload-graph -----
+  router.post("/rpm/upload-graph", async (req, res) => {
+    try {
+      // Read raw body
+      const bodyBuf = await readRawBody(req.raw);
+
+      // Check size limit (5MB)
+      if (bodyBuf.length > 5 * 1024 * 1024) {
+        sendError(res, 413, "The uploaded file is too large. Maximum size is 5MB.");
+        return;
+      }
+
+      // Extract file content from multipart or raw JSON
+      let fileContent: string;
+      const contentType = req.raw.headers["content-type"] ?? "";
+
+      if (contentType.includes("multipart/form-data")) {
+        fileContent = extractMultipartFile(bodyBuf, contentType);
+      } else {
+        fileContent = bodyBuf.toString("utf8");
+      }
+
+      // Parse JSON
+      let doc: Record<string, unknown>;
+      try {
+        doc = JSON.parse(fileContent);
+      } catch {
+        sendError(res, 400, "The uploaded file is not valid JSON. Please check the file and try again.");
+        return;
+      }
+
+      // Validate JSON-LD structure
+      if (!doc["@context"]) {
+        sendError(res, 400, "The uploaded file does not appear to be a JSON-LD document. It must contain an @context field.");
+        return;
+      }
+
+      // Write to temp file
+      const tempPath = join(tmpdir(), `rpm-upload-${Date.now()}.jsonld`);
+      await writeFile(tempPath, fileContent, "utf8");
+
+      // Run discovery
+      const result = await runLocalDiscovery(tempPath, { skipTier3: false });
+
+      // Atomic state swap
+      state.registry = result.registry;
+      state.catalog = result.catalog;
+      state.report = result.report;
+      state.closure = result.closure;
+      state.typeResolver = result.typeResolver;
+      state.localStore = result.store;
+      state.lastCrawlTimestamp = new Date().toISOString();
+
+      // Clean up temp file
+      await unlink(tempPath).catch(() => {});
+
+      sendJson(res, 200, {
+        success: true,
+        mappingCount: result.registry.mappings.length,
+        subjectTypeCount: result.catalog.subjectTypes.length,
+        timestamp: state.lastCrawlTimestamp,
+      });
+    } catch (err) {
+      sendError(res, 500, "Discovery could not be completed. Please check that the file is a valid JSON-LD document and try again.");
+    }
   });
 
   return router;
