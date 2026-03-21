@@ -188,6 +188,10 @@ function walkSteps(
  * Execute a single CGP clause pattern against the store.
  * Looks up the mapping by provenance.rulesApplied, then walks the
  * pattern steps against each candidate subject.
+ *
+ * Binding keys use outputBind.label (not the raw role name) to align
+ * with the column headers in the Results View and to avoid key
+ * collisions when multiple clauses all use role: "target".
  */
 export function executeSingleClause(
   cgp: CGP,
@@ -218,9 +222,19 @@ export function executeSingleClause(
     // Walk the pattern steps
     const walkResult = walkSteps(mapping.pattern.steps, subjectIri, bySubject, closure);
     if (walkResult.matched) {
+      // Remap binding keys from role names to outputBind labels.
+      // This aligns with column headers and prevents key collision
+      // when multiple clauses all use role: "target".
+      const remappedBindings: Record<string, string> = {};
+      for (const [role, value] of Object.entries(walkResult.bindings)) {
+        const outputBind = mapping.ui.outputBinds.find((ob) => ob.role === role);
+        const key = outputBind?.label ?? role;
+        remappedBindings[key] = value;
+      }
+
       results.push({
         subjectIri,
-        bindings: walkResult.bindings,
+        bindings: remappedBindings,
       });
     }
   }
