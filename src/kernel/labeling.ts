@@ -11,8 +11,6 @@ import type {
   LabelAnnotation,
   LabelingLawLevel,
   LabelResolution,
-  LabelResolutionSuccess,
-  LabelResolutionFailure,
   QualityThresholdFailureReason,
   OntologyClosure,
   OntologyClass,
@@ -306,24 +304,49 @@ export function resolveLabel(
  * Returns empty string if no hint source exists — absence is preferable
  * to a synthetic hint.
  */
-export function resolveHint(
+/** Result of hint resolution with source predicate tracking. */
+export interface HintResolution {
+  value: string;
+  source?: string;
+}
+
+/**
+ * Resolve a hint with source predicate tracking (RPM §30.6).
+ * Returns both the hint value and which predicate resolved it.
+ */
+export function resolveHintWithSource(
   iri: string,
   closure: OntologyClosure,
-): string {
+): HintResolution {
   const entry = lookupEntry(iri, closure);
-  if (!entry) return "";
+  if (!entry) return { value: "" };
 
   for (const predicate of HINT_PREDICATES) {
     const candidates = entry.annotations.filter((a) => a.predicate === predicate);
     if (candidates.length > 0) {
       const best = selectByLanguagePreference(candidates);
       if (best && best.value.trim().length > 0) {
-        return best.value.trim();
+        return { value: best.value.trim(), source: predicate };
       }
     }
   }
 
-  return "";
+  return { value: "" };
+}
+
+/**
+ * Resolve a hint (helper text) for a predicate IRI (RPM §30.6).
+ *
+ * Priority: rdfs:comment → skos:definition → skos:scopeNote → empty string.
+ * Language preference from §30.3 applies.
+ * Returns empty string if no hint source exists — absence is preferable
+ * to a synthetic hint.
+ */
+export function resolveHint(
+  iri: string,
+  closure: OntologyClosure,
+): string {
+  return resolveHintWithSource(iri, closure).value;
 }
 
 // ---------------------------------------------------------------------------

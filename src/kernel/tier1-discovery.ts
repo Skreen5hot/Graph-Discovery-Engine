@@ -23,7 +23,7 @@ import type {
   OutputBind,
   TypeResolver,
 } from "./types.js";
-import { resolveLabel, resolveHint, resolveGroup } from "./labeling.js";
+import { resolveLabel, resolveHint, resolveHintWithSource, resolveGroup } from "./labeling.js";
 import { inferControl } from "./control-inference.js";
 
 // ---------------------------------------------------------------------------
@@ -281,8 +281,9 @@ function buildTier1UIBlock(
     ? predicateResolution.level
     : undefined;
 
-  // Description from hint resolution on predicate
-  const description = resolveHint(predicate, closure);
+  // Description from hint resolution on predicate — with source tracking
+  const hintResult = resolveHintWithSource(predicate, closure);
+  const description = hintResult.value;
 
   // Group from auto-grouping on domain class
   const group = resolveGroup(subjectClass, closure);
@@ -293,6 +294,12 @@ function buildTier1UIBlock(
     ? subjectResolution.label
     : "";
 
+  // Range label — resolved once, used by both inputParam and outputBind
+  const rangeResolution = rangeType ? resolveLabel(rangeType, closure) : null;
+  const resolvedRangeLabel = rangeResolution?.status === "resolved"
+    ? rangeResolution.label
+    : "";
+
   // Input parameter from Control Inference
   // Q1 uses executePaginated, Q2 uses executeQuery — the selection is
   // documented here per Orchestrator guidance (not left implicit)
@@ -301,12 +308,8 @@ function buildTier1UIBlock(
   const inputParam: InputParameter = {
     id: `${extractSimpleName(predicate)}-filter`,
     role: "target",
-    label: rangeType
-      ? (resolveLabel(rangeType, closure).status === "resolved"
-          ? (resolveLabel(rangeType, closure) as { status: "resolved"; label: string }).label
-          : "")
-      : "",
-    hint: resolveHint(predicate, closure),
+    label: resolvedRangeLabel,
+    hint: description,
     inputType: controlResult.inputType,
     inputTypeSource: controlResult.inputTypeSource,
     required: false,
@@ -316,16 +319,9 @@ function buildTier1UIBlock(
   };
 
   // Output bind — label resolved at discovery time, not lazily (Phase 1.8 contract)
-  const outputBindLabel = rangeType
-    ? (() => {
-        const res = resolveLabel(rangeType, closure);
-        return res.status === "resolved" ? res.label : "";
-      })()
-    : "";
-
   const outputBind: OutputBind = {
     role: "target",
-    label: outputBindLabel,
+    label: resolvedRangeLabel,
     description: rangeType ? resolveHint(rangeType, closure) : "",
   };
 
@@ -333,7 +329,7 @@ function buildTier1UIBlock(
     label,
     labelSource,
     description,
-    descriptionSource: description ? "rdfs:comment" : undefined,
+    descriptionSource: hintResult.source,
     group,
     groupSource: "domainClassLabel",
     examples: [],
