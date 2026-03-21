@@ -515,8 +515,8 @@ export function registerRpmRoutes(state: ServerState) {
         fileContent = bodyBuf.toString("utf8");
       }
 
-      // Parse JSON
-      let doc: Record<string, unknown>;
+      // Parse JSON — accept both objects and arrays
+      let doc: Record<string, unknown> | unknown[];
       try {
         doc = JSON.parse(fileContent);
       } catch {
@@ -524,9 +524,11 @@ export function registerRpmRoutes(state: ServerState) {
         return;
       }
 
-      // Validate JSON-LD structure
-      if (!doc["@context"]) {
-        sendError(res, 400, "The uploaded file does not appear to be a JSON-LD document. It must contain an @context field.");
+      // Validate JSON-LD structure — accept both:
+      // 1. Standard JSON-LD with @context (jane-doe.jsonld style)
+      // 2. Expanded JSON-LD array (CQDatabase.jsonld style — array of nodes with full IRIs)
+      if (!Array.isArray(doc) && !doc["@context"] && !doc["@graph"] && !doc["@id"]) {
+        sendError(res, 400, "The uploaded file does not appear to be a JSON-LD document. It must contain an @context field, @graph array, or be an array of nodes.");
         return;
       }
 

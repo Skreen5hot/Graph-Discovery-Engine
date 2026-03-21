@@ -223,9 +223,20 @@ function processValue(
  * Parse a JSON-LD document object into a LocalTripleStore.
  * Resets the blank node counter for deterministic output.
  */
-export function parseJsonLdDoc(doc: Record<string, unknown>): LocalTripleStore {
+export function parseJsonLdDoc(doc: Record<string, unknown> | unknown[]): LocalTripleStore {
   blankNodeCounter = 0;
   const triples: Triple[] = [];
+
+  // Handle expanded JSON-LD array (array of nodes with full IRIs, no @context)
+  if (Array.isArray(doc)) {
+    const prefixes: Record<string, string> = {};
+    for (const node of doc) {
+      if (typeof node === "object" && node !== null) {
+        extractNode(node as Record<string, unknown>, prefixes, triples);
+      }
+    }
+    return { triples, prefixes };
+  }
 
   // Parse context
   const prefixes = parseContext(doc["@context"]);
@@ -252,6 +263,6 @@ export function parseJsonLdDoc(doc: Record<string, unknown>): LocalTripleStore {
  */
 export async function loadJsonLdGraph(filePath: string): Promise<LocalTripleStore> {
   const content = await readFile(filePath, "utf8");
-  const doc = JSON.parse(content) as Record<string, unknown>;
+  const doc = JSON.parse(content) as Record<string, unknown> | unknown[];
   return parseJsonLdDoc(doc);
 }
