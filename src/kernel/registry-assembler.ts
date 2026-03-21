@@ -230,10 +230,14 @@ function buildDiscoveryReport(
     suppressed: tierResults.tier2.mappings.filter((m) => m.exposure === "internal").length,
   };
 
+  // Tier 3 is different from Tier 1/2: suppressed paths only appear in
+  // promotionLog, never in mappings (which contains only promoted entries).
+  // Count suppressed from the log, not from mappings.
+  const tier3Suppressed = tier3Log.filter((l) => l.exposure === "internal").length;
   const tier3: Tier3Report = {
-    pathsAnalyzed: tierResults.tier3.mappings.length,
-    compoundIntentsPromoted: tierResults.tier3.mappings.filter((m) => m.exposure === "smeSurface").length,
-    suppressed: tierResults.tier3.mappings.filter((m) => m.exposure === "internal").length,
+    pathsAnalyzed: tierResults.tier3.mappings.length + tier3Suppressed,
+    compoundIntentsPromoted: tierResults.tier3.mappings.length,
+    suppressed: tier3Suppressed,
     capHit: tier3Log.filter((l) => l.reason.includes("cap")).length,
   };
 
