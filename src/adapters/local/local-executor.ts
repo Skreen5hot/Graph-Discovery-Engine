@@ -73,10 +73,12 @@ function walkSteps(
 ): WalkResult {
   const bindings: Record<string, string> = {};
   let node = currentNode;
+  let lastEdgePredicate = "";
 
   for (const step of steps) {
     switch (step.type) {
       case "edge": {
+        lastEdgePredicate = step.predicate;
         // Find a triple where (node, predicate, ?)
         const triples = bySubject.get(node) ?? [];
         // For forward edges, try IRI objects first, then literals
@@ -150,19 +152,12 @@ function walkSteps(
 
       case "literal": {
         if (step.via === "direct") {
-          // The previous edge step found a literal — check the last edge's object
-          // Actually, in "direct" mode the edge target IS the literal value
-          // Re-check: the edge step above already moved `node` to the object
-          // For literal patterns, the edge object is a literal value
-          // We need to find the literal value from the edge
-          // Back-track: find the literal triple
-          const parentTriples = bySubject.get(currentNode) ?? [];
-          const literalTriple = parentTriples.find(
-            (t) => t.isLiteral && !t.predicate.includes("rdf-syntax"),
-          );
-          if (literalTriple) {
-            bindings["value"] = literalTriple.object;
-          }
+          // For direct literal patterns, the preceding edge step already
+          // found the literal triple and set `node` to the literal value.
+          // Use the predicate's resolved label as the binding key so it
+          // aligns with column headers.
+          const predLabel = resolveEntityLabel(lastEdgePredicate, closure, "value");
+          bindings[predLabel] = node;
         }
         break;
       }
