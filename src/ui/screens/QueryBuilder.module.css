@@ -1,0 +1,168 @@
+/* Screen 2 — Query Builder — §7 */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* §7.5 — Query Summary Bar */
+.summaryBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: var(--neutral-0);
+  border-bottom: 1px solid var(--neutral-200);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.summaryType { font-weight: var(--weight-semibold); }
+.changeLink {
+  background: none; border: none; color: var(--accent-500);
+  cursor: pointer; font-size: var(--text-body-sm); font-family: var(--font-ui);
+}
+.summaryInfo { flex: 1; color: var(--neutral-600); font-size: var(--text-body-sm); }
+.reviewButton {
+  padding: var(--space-2) var(--space-4); font-size: var(--text-button);
+  font-weight: var(--weight-medium); font-family: var(--font-ui);
+  background: var(--accent-500); color: var(--neutral-0); border: none;
+  border-radius: var(--radius-md); cursor: pointer; min-height: 44px;
+}
+.reviewButton:disabled { background: var(--neutral-300); color: var(--neutral-500); cursor: default; }
+
+/* Discovery note — §18.2 */
+.discoveryNote {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: var(--accent-50); border-bottom: 1px solid var(--accent-100);
+  font-size: var(--text-body-sm); color: var(--neutral-700);
+}
+.discoveryNote button {
+  background: none; border: none; color: var(--neutral-500);
+  cursor: pointer; font-size: var(--text-body); min-width: 44px; min-height: 44px;
+}
+
+/* Columns */
+.columns {
+  display: flex; flex: 1; overflow: hidden;
+}
+
+/* Sidebar — §7.3 */
+.sidebar {
+  width: var(--sidebar-width); border-right: 1px solid var(--neutral-200);
+  overflow-y: auto; padding: var(--space-4);
+  background: var(--neutral-0); flex-shrink: 0;
+}
+@media (max-width: 767px) {
+  .sidebar { display: none; }
+}
+
+.sidebarSearch {
+  width: 100%; padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body-sm); border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-sm); margin-bottom: var(--space-4);
+  font-family: var(--font-ui);
+}
+.sidebarSearch:focus { border-color: var(--accent-500); outline: none; }
+
+/* Common questions strip — §7.3.1 */
+.commonStrip { margin-bottom: var(--space-3); }
+.stripHeading {
+  font-size: var(--text-caption); font-weight: var(--weight-medium);
+  color: var(--neutral-500); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: var(--space-2);
+}
+.stripDivider { height: 1px; background: var(--neutral-200); margin: var(--space-3) 0; }
+
+/* Full catalog — §7.3.2 */
+.catalogHeading {
+  font-size: var(--text-caption); font-weight: var(--weight-medium);
+  color: var(--neutral-500); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: var(--space-3);
+}
+.catalogGroup { margin-bottom: var(--space-3); }
+.groupHeading {
+  font-size: var(--text-label); font-weight: var(--weight-medium);
+  color: var(--neutral-700); margin-bottom: var(--space-2);
+  cursor: pointer;
+}
+.groupCount { color: var(--neutral-500); font-weight: var(--weight-regular); }
+
+/* Intent list items */
+.intentItem {
+  display: flex; flex-direction: column; width: 100%; text-align: left;
+  padding: var(--space-2) var(--space-3); background: none; border: none;
+  border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-ui);
+  margin-bottom: 1px; min-height: 44px;
+}
+.intentItem:hover { background: var(--neutral-100); }
+.intentAdded { opacity: 0.7; }
+.intentLabel { font-size: var(--text-body-sm); font-weight: var(--weight-medium); color: var(--neutral-800); }
+.intentDesc {
+  font-size: var(--text-caption); color: var(--neutral-600);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.checkmark { color: var(--success-500); }
+.noResults { font-size: var(--text-body-sm); color: var(--neutral-600); padding: var(--space-4); }
+
+/* Canvas — §7.4 */
+.canvas { flex: 1; padding: var(--space-5); overflow-y: auto; }
+.emptyCanvas {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 300px; color: var(--neutral-600);
+  font-size: var(--text-body);
+}
+.emptyHint { font-size: var(--text-body-sm); color: var(--neutral-500); margin-top: var(--space-2); }
+
+/* Clause chips — §12.7 */
+.clauseChip {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--neutral-0); border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-md); margin-bottom: var(--space-3);
+  animation: chipAppear var(--motion-standard) var(--ease-spring);
+}
+@keyframes chipAppear { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.chipBody {
+  flex: 1; background: none; border: none; text-align: left;
+  cursor: pointer; font-family: var(--font-ui); padding: 0; min-height: 44px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.chipParam {
+  display: inline-block; font-size: var(--text-body-sm);
+  color: var(--neutral-600); margin-left: var(--space-3);
+}
+.chipRemove {
+  background: none; border: none; color: var(--neutral-500); cursor: pointer;
+  font-size: var(--text-body); min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
+.chipRemove:hover { color: var(--error-500); }
+
+/* Composition selector — §7.4 */
+.compositionSelector {
+  padding: var(--space-4); background: var(--neutral-50);
+  border-radius: var(--radius-md); margin-bottom: var(--space-4);
+}
+.compositionLabel { font-size: var(--text-body-sm); font-weight: var(--weight-medium); margin-bottom: var(--space-2); }
+.radioOption {
+  display: flex; align-items: center; gap: var(--space-2);
+  font-size: var(--text-body); color: var(--neutral-800);
+  padding: var(--space-1) 0; cursor: pointer; min-height: 44px;
+}
+.compositionHint {
+  font-size: var(--text-caption); color: var(--neutral-500);
+  margin-top: var(--space-2);
+}
+
+/* Add another */
+.addAnother {
+  background: none; border: 1px dashed var(--neutral-300);
+  border-radius: var(--radius-md); padding: var(--space-3);
+  width: 100%; font-size: var(--text-body-sm); color: var(--accent-500);
+  cursor: pointer; font-family: var(--font-ui); min-height: 44px;
+}
+.addAnother:hover { border-color: var(--accent-500); background: var(--accent-50); }
