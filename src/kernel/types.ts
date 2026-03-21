@@ -642,6 +642,9 @@ export interface CatalogGroup {
 export interface RPMContext {
   mappingRegistry: MappingRegistry;
   ontologyClosure: OntologyClosure;
+  /** Optional TypeResolver. Defaults to stubTypeResolver if not provided.
+   *  Phase 2.2 provides createOwlTypeResolver(closure) for real subsumption. */
+  typeResolver?: TypeResolver;
   [key: string]: unknown;
 }
 

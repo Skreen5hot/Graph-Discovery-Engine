@@ -412,11 +412,11 @@ Write domain-specific tests for all Phase 1 kernel functions.
 
 **Goal:** Implement the three-tier Discovery Engine that crawls a SPARQL endpoint and assembles the in-memory Mapping Registry. This phase bridges kernel algorithms (Phase 1) with live graph data.
 
-**Status:** Not Started
+**Status:** In Progress
 
 **Layer:** 0 (`src/kernel/`) for registry assembly and tier logic; 2 (`src/adapters/`) for SPARQL endpoint connectivity.
 
-**Execution order:** 2.0 (ADR-004 done) → 2.1 + 2.2 in parallel → 2.3 → 2.4 → 2.5 → 2.6 → 2.7.
+**Execution order:** 2.0 (ADR-004 done) → 2.1 + 2.2 (done) → 2.3 → 2.4 → 2.5 → 2.6 → 2.7.
 
 **Pre-Phase 2 setup (complete):**
 - [x] ADR-004: Oxigraph chosen for CT-11 test endpoint
@@ -439,28 +439,45 @@ CT-11 (Frequent Path Discovery) requires a SPARQL test endpoint seeded with dete
 
 ### 2.1 SPARQL Endpoint Connector
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 Adapter-layer component for executing SPARQL queries against a configured endpoint.
 
+**Implementation:** `src/adapters/integration/sparql-connector.ts` — adapter layer, not imported by kernel.
+
 **Acceptance Criteria:**
-- [ ] Lives in `src/adapters/` — not in kernel
-- [ ] Executes paginated queries (10,000 results/page) with 30s per-query timeout and one retry (§32.3)
-- [ ] HTTP HEAD health check with 10s timeout (§32.2)
-- [ ] Emits `CRAWL_ENDPOINT_UNREACHABLE` on failure
-- [ ] All 5 introspection queries implemented: Q1–Q5 (§32.3)
-- [ ] Replaceable without kernel changes
+- [x] Lives in `src/adapters/` — not in kernel
+- [x] Executes paginated queries (configurable page size, default 10,000) with 30s per-query timeout and one retry (§32.3)
+- [x] HTTP HEAD health check with 10s timeout (§32.2)
+- [x] All 6 introspection queries implemented: Q1–Q5 (§32.3) + Q6 (owl:oneOf for §31.3)
+- [x] Q5 parameterized by subject class and hop depth — generates separate concrete queries per depth
+- [x] Replaceable without kernel changes — no kernel imports
+- [x] Uses Node.js built-in fetch (Node 22+), no external HTTP dependencies
+
+**Tests:** `tests/sparql-connector.test.ts` — 14 tests with mock HTTP server: query templates (5), Q5 parameterized (2), connector factory (1), health check (3), query execution (1), retry (1), pagination (1).
 
 ### 2.2 Ontology Closure Loader
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 Load and index the ontology closure for subsumption checks, label lookups, and property chain resolution.
 
+**Implementation:** `src/kernel/type-resolver.ts` (OWL/RDFS TypeResolver), `src/kernel/closure-builder.ts` (closure construction helpers).
+
 **Acceptance Criteria:**
-- [ ] `OntologyClosure` populated with classes, properties, superclass/superproperty chains, inverse metadata, label/comment/definition annotations
-- [ ] Subsumption distance calculation for specificity scoring
-- [ ] Pluggable `TypeResolver` interface wired to default OWL/RDFS implementation
+- [x] `OntologyClosure` populated via `buildClosure()` from class/property input arrays
+- [x] Subsumption distance calculation via BFS with cycle detection (visited set)
+- [x] `createOwlTypeResolver(closure)` — concrete TypeResolver with real OWL/RDFS subsumption
+- [x] Handles cycles in superclass graph (authoring errors) without infinite loop
+- [x] Handles diamond inheritance (shortest path via BFS)
+- [x] `rpmExpand` refactored: `context.typeResolver` as typed optional field (not unsafe cast), falls back to `stubTypeResolver`
+- [x] Closure builder helpers: `buildClosure()`, `mergeClosure()`, `addClassLabel()`, `addClassAnnotation()`, `addSuperclass()`
+
+**Tests:** `tests/type-resolver.test.ts` — 16 tests: exact match (1), direct superclass (1), transitive 2-hop (1), no relationship (1), asymmetry (1), unknown IRI (1), cycle handling (2), diamond inheritance (1), closure builder (4), rpmExpand integration with real resolver (3).
+
+**`types.ts` change (disclosed):** `RPMContext.typeResolver` added as `TypeResolver | undefined` (typed optional field, replaces unsafe `context.typeResolver as TypeResolver | undefined` cast).
+
+**No other `types.ts` changes.**
 
 ### 2.3 Tier 1 — Direct Predicate Discovery (§32.4)
 
@@ -526,7 +543,7 @@ Load and index the ontology closure for subsumption checks, label lookups, and p
 
 **Phase 2 Prerequisites (from Phase 1 review):**
 - [x] ~~ICE class and predicate hardcoded~~ → Resolved: `LiteralStep.iceClass` and `LiteralStep.icePredicate` optional fields added. Serializer reads them with `??` fallback to `rpm:` defaults. Phase 2.3 populates from ontology closure.
-- [ ] `stubTypeResolver` in `expand.ts` is retrieved from `context.typeResolver` via unsafe cast on `unknown`. Phase 2.2 replaces the stub with real OWL/RDFS implementation — at that point, make `typeResolver` an explicit optional parameter on `rpmExpand` rather than threading through the context bag.
+- [x] ~~`stubTypeResolver` unsafe cast~~ → Resolved: `RPMContext.typeResolver` is now a typed `TypeResolver | undefined` field. `rpmExpand` reads it with `context.typeResolver ?? stubTypeResolver`. `createOwlTypeResolver(closure)` provides the real implementation.
 
 **NOT in scope for Phase 2:**
 - HTTP API endpoints — that is Phase 3

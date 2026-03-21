@@ -125,7 +125,7 @@ export function rpmExpand(
   subject: Subject,
   context: RPMContext,
 ): ExpandResult {
-  const typeResolver = (context.typeResolver as TypeResolver | undefined) ?? stubTypeResolver;
+  const typeResolver = context.typeResolver ?? stubTypeResolver;
 
   // Step 1: Resolve mapping
   const mapping = resolveMapping(intent, context.mappingRegistry);
