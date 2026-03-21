@@ -345,19 +345,32 @@ Transform resolved CGPs into plain-language summaries. Pure function: CGP + UI b
 
 **No `types.ts` changes.**
 
+**Quality improvement candidate:** When `firewallClean` replaces a prohibited narrative summary with the class-level fallback, it produces a noun fragment like `"Chemical Process."` rather than a full sentence. The minimal fallback `"${classLevelFallback} is linked to a result."` only fires when the fallback itself is prohibited. The fragment is firewall-clean and spec-compliant ("shorter correct sentence") but a future pass could apply the minimal sentence template to the intermediate case as well.
+
 ### 1.9 Query Composition Model (§24)
 
-**Status:** Not Started | **Priority:** Medium
+**Status:** Complete | **Priority:** Medium
 
 Compose multiple intent clauses into a `CGP_c`. Pure function: composed query + context → `CGP_c`. The UI composition mode selector (UI Spec §7.4) maps directly to these modes.
 
+**Implementation:** `src/kernel/compose.ts` — `rpmCompose()`, `calculateSpecificity()`, `rankBySpecificity()`.
+
 **Acceptance Criteria:**
-- [ ] `CQO` (Composed Query Object) processing
-- [ ] `joinAnchors`, `unionRoots`, `chainLinks` structural metadata
-- [ ] `joinType` disambiguation
-- [ ] Specificity scoring for multi-mapping resolution (§5.6)
-- [ ] Three composition modes: sequential/subjectToSubject ("All must match"), parallel ("Any can match"), targetToSubject ("Chained search") — per UI Spec §18.4
-- [ ] `npm test` and `npm run test:purity` pass
+- [x] `CQO` (Composed Query Object) processing — each clause expanded via `rpmExpand`, fail-closed on any error
+- [x] `joinAnchors` — shared subject nodes resolved for subjectToSubject mode
+- [x] `unionRoots` — distinct subject @ids collected for union mode
+- [x] `chainLinks` — bound output role → subject links for targetToSubject mode
+- [x] `joinType` set from CQO composition mode
+- [x] Specificity scoring (§5.6): subsumption distance × 1000 + tier rank × 100 + registry position
+- [x] Three composition modes: subjectToSubject ("All must match"), union ("Any can match"), targetToSubject ("Chained search")
+- [x] Error propagation: any clause failure → RPMError[] with clauseIndex per error
+- [x] `npm test` (199/199) and `npm run test:purity` (12 kernel files) pass
+
+**Tests:** `tests/compose.test.ts` — 12 tests covering subjectToSubject (1), union (1), targetToSubject (1), error propagation (2), single clause (1), specificity scoring (4), rankBySpecificity (1), determinism (1).
+
+**Caller contract for narrative integration:** The composition layer or integration caller resolves `objectLabel` from the CGP's `@graph` (finding the node with `rpm:role` matching the mapping's outputBinds) before calling `generateNarrative`. The narrative layer receives pre-resolved label strings.
+
+**No `types.ts` changes.**
 
 ### 1.10 Domain Tests — Phase 1
 
