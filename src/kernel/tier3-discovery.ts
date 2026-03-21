@@ -166,10 +166,15 @@ function findSemanticAnchor(
 /**
  * Compose the compound label from the semantic anchor (§32.6.5).
  * Steps 1–4: anchor label directly, disambiguate if needed.
+ *
+ * When the anchor label collides across different (SC, OC) pairs
+ * for the same subject class, the object class label is used as
+ * the primary disambiguation suffix ("via [ObjectClass]").
  */
 function composeCompoundLabel(
   anchorClass: string | undefined,
   hops: PathHop[],
+  objectClass: string,
   closure: OntologyClosure,
   existingLabels: Set<string>,
 ): string {
@@ -179,16 +184,25 @@ function composeCompoundLabel(
   const resolution = resolveLabel(anchorClass, closure);
   let label = resolution.status === "resolved" ? resolution.label : "Path";
 
-  // Step 4: Disambiguation — if label already used for same (SC, OC) pair
+  // Step 4: Disambiguation — if label already used for this subject class
   if (existingLabels.has(label)) {
-    // Find second-most-specific intermediate class
-    const intermediates = hops
-      .map((h) => h.nodeClass)
-      .filter((c) => c !== anchorClass);
-    if (intermediates.length > 0) {
-      const secondRes = resolveLabel(intermediates[intermediates.length - 1], closure);
-      if (secondRes.status === "resolved") {
-        label = `${label} via ${secondRes.label}`;
+    // Primary disambiguation: use the object class label
+    // This handles cross-(SC,OC) pair collisions where different object
+    // classes share the same anchor (e.g., "Act Of Residing" for
+    // Person→StreetAddress vs Person→LocalAdministrativeRegion)
+    const objectRes = resolveLabel(objectClass, closure);
+    if (objectRes.status === "resolved") {
+      label = `${label} via ${objectRes.label}`;
+    } else {
+      // Fallback: use second-most-specific intermediate class
+      const intermediates = hops
+        .map((h) => h.nodeClass)
+        .filter((c) => c !== anchorClass);
+      if (intermediates.length > 0) {
+        const secondRes = resolveLabel(intermediates[intermediates.length - 1], closure);
+        if (secondRes.status === "resolved") {
+          label = `${label} via ${secondRes.label}`;
+        }
       }
     }
   }
@@ -273,6 +287,13 @@ export function generateTier3Mappings(
   const promotionLog: PromotionLogEntry[] = [];
 
   for (const sample of samples) {
+    // Cross-pair label usage set: tracks all compound labels used for this
+    // subject class across ALL (SC, OC) pairs. Prevents label collisions
+    // when different object classes share the same semantic anchor
+    // (e.g., "Act Of Residing" appears for Person→StreetAddress,
+    // Person→LocalAdministrativeRegion, Person→DesignativeName).
+    const subjectClassUsedLabels = new Set<string>();
+
     // Group paths by (SC, OC) pair
     const pairGroups = new Map<string, DiscoveredPath[]>();
     for (const path of sample.paths) {
@@ -374,19 +395,18 @@ export function generateTier3Mappings(
       }
 
       // Compose labels and build mappings for promoted candidates
-      const usedLabels = new Set<string>();
-
+      // Uses the subject-class-level label set for cross-pair disambiguation
       for (let rank = 0; rank < promoted.length; rank++) {
         const { path, frequency, anchor } = promoted[rank];
 
-        // §32.6.5: Compound label composition
-        let label = composeCompoundLabel(anchor, path.hops, closure, usedLabels);
+        // §32.6.5: Compound label composition — checks cross-pair labels
+        let label = composeCompoundLabel(anchor, path.hops, path.objectClass, closure, subjectClassUsedLabels);
 
         // Final disambiguation with frequency if still duplicate
-        if (usedLabels.has(label)) {
+        if (subjectClassUsedLabels.has(label)) {
           label = `${label} (${Math.round(frequency * 100)}%)`;
         }
-        usedLabels.add(label);
+        subjectClassUsedLabels.add(label);
 
         // §32.6.6: Shorthand
         const shorthand = generateCompoundShorthand(
