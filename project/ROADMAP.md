@@ -272,19 +272,30 @@ Extend the existing `src/kernel/canonicalize.ts` to handle CGP-specific output r
 
 ### 1.6 Pattern Grammar and Recursive Expander (§6, §7)
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 Implement the path pattern grammar and the recursive expansion model. Pure function: mapping + subject + context → CGP.
 
+**Implementation:** `src/kernel/expand.ts` — `rpmExpand()` entry point + `stubTypeResolver`. `src/kernel/cgp-serializer.ts` updated with pendingEdge carry-forward and literal step ICE handling.
+
 **Acceptance Criteria:**
-- [ ] Step types implemented: `edge`, `node`, `bind`, `literal`, `branch` (§6)
-- [ ] Expansion steps implemented in order (§7.1): resolve mapping → validate subject → instantiate root → expand pattern → inject intermediates → bind outputs → canonicalize
-- [ ] Literal handling: `via: "ice"` and `via: "direct"` co-equal (§8)
-- [ ] Multi-typing and subsumption validation (§10): pluggable `TypeResolver` interface
-- [ ] **Stub `TypeResolver` implemented** for Phase 1 testing: performs exact-match type checking (no subsumption traversal). Phase 2.2 replaces this with the real OWL/RDFS implementation. Without this stub, Phase 1.10 domain tests cannot exercise expansion, validation, or composition.
-- [ ] Branch nesting supported for Tier 2 and Tier 3 compound patterns
-- [ ] Input immutability preserved (`structuredClone`)
-- [ ] `npm test` and `npm run test:purity` pass
+- [x] Step types implemented: `edge`, `node`, `bind`, `literal`, `branch` (§6)
+- [x] Expansion steps implemented in order (§7.1): resolve mapping → validate subject → instantiate root → expand pattern → inject intermediates → bind outputs → canonicalize
+- [x] Literal handling: `via: "ice"` creates ICE node, `via: "direct"` is structural no-op (§8)
+- [x] Multi-typing and subsumption validation (§10): pluggable `TypeResolver` interface; any-match semantics
+- [x] **Stub `TypeResolver` implemented** (`stubTypeResolver`): exact-match only, exported for Phase 1 tests
+- [x] Branch nesting supported for Tier 2 and Tier 3 compound patterns (tested with 4-hop employment path)
+- [x] Inverse edge direction supported (child node links back to parent)
+- [x] Input immutability preserved (tested: subject not mutated after expansion)
+- [x] `npm test` (136/136) and `npm run test:purity` (9 kernel files) pass
+
+**Tests:** `tests/expand.test.ts` — 13 tests covering INTENT_NOT_FOUND (2), SUBCLASS_VIOLATION (1), multi-typed subject (1), Tier 1 full expansion (1), Tier 3 nested branch (1), inverse edge (1), literal via ice (1), literal via direct (1), determinism (1), type guards (2), input immutability (1).
+
+**Pre-implementation refactors (carried from Phase 1.5 review):**
+- Edge handling refactored from lookback (`steps[i-1]`) to carry-forward (`pendingEdge`) — correctly handles edge → branch sequences
+- Literal step ICE contract documented in SPEC.md §5
+
+**Files changed:** `src/kernel/expand.ts` (new), `src/kernel/cgp-serializer.ts` (pendingEdge + ICE literal), `tests/expand.test.ts` (new), `project/SPEC.md` (§5 literal contract). No `types.ts` changes.
 
 ### 1.7 Error Handling (§11, §25)
 

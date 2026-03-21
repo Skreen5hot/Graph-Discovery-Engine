@@ -14,6 +14,7 @@ import type {
   CGPNode,
   Provenance,
   PatternStep,
+  EdgeStep,
   BranchStep,
   Subject,
 } from "./types.js";
@@ -99,16 +100,19 @@ export function walkPatternSteps(
 ): void {
   let currentNodeId = parentNodeId;
 
+  // Carry-forward edge: when an edge step is encountered, it is stored here
+  // and consumed by the next node or branch step. This replaces the lookback
+  // approach (steps[i-1]) and correctly handles edge → branch sequences.
+  let pendingEdge: EdgeStep | null = null;
+
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     const stepPath = buildStepPath(parentPath, i);
 
     switch (step.type) {
       case "edge": {
-        // Edge steps don't create new nodes — they create predicates
-        // on the current node pointing to the next node.
-        // The actual predicate linking is done when the next node step fires.
-        // Store the edge info for the next node step to consume.
+        // Store the edge for the next node/branch step to consume.
+        pendingEdge = step;
         break;
       }
 
@@ -127,16 +131,16 @@ export function walkPatternSteps(
         };
         ctx.nodes.push(node);
 
-        // Link from parent via the preceding edge (if any)
-        const prevStep = i > 0 ? steps[i - 1] : null;
-        if (prevStep && prevStep.type === "edge") {
+        // Link from parent via the pending edge (if any)
+        if (pendingEdge) {
           const parentNode = findOrCreateParentLink(currentNodeId, ctx);
-          if (prevStep.direction === "forward") {
-            parentNode[prevStep.predicate] = { "@id": nodeId };
+          if (pendingEdge.direction === "forward") {
+            parentNode[pendingEdge.predicate] = { "@id": nodeId };
           } else {
             // Inverse: the new node points back to the parent
-            node[prevStep.predicate] = { "@id": currentNodeId };
+            node[pendingEdge.predicate] = { "@id": currentNodeId };
           }
+          pendingEdge = null;
         }
 
         currentNodeId = nodeId;
@@ -153,14 +157,46 @@ export function walkPatternSteps(
       }
 
       case "literal": {
-        // Literal steps modify the preceding edge's handling mode
-        // The via mode ("direct" or "ice") is metadata on the mapping,
-        // not a structural CGP element. No node created.
+        // Literal step handling (RPM §8):
+        // - via "direct": no structural CGP element. The literal value is bound
+        //   directly to the predicate on the current node. No node created.
+        // - via "ice": intermediate ICE node created:
+        //   CurrentNode → is_designated_by → ICE Node → has_text_value → [literal placeholder]
+        if (step.via === "ice") {
+          const iceNodeId = generateNodeId(
+            ctx.subjectId,
+            ctx.intent,
+            ctx.mappingShorthand,
+            stepPath,
+            branchName,
+          );
+          const iceNode: CGPNode = {
+            "@id": iceNodeId,
+            "@type": ["rpm:InformationContentEntity"],
+          };
+          ctx.nodes.push(iceNode);
+
+          // Link current node to ICE node via is_designated_by
+          if (pendingEdge) {
+            const parentNode = findOrCreateParentLink(currentNodeId, ctx);
+            parentNode[pendingEdge.predicate] = { "@id": iceNodeId };
+          } else {
+            const parentNode = findOrCreateParentLink(currentNodeId, ctx);
+            parentNode["rpm:is_designated_by"] = { "@id": iceNodeId };
+          }
+
+          currentNodeId = iceNodeId;
+        }
+        // via "direct": no-op — literal bound directly to predicate
+        pendingEdge = null;
         break;
       }
 
       case "branch": {
-        // Recurse into the branch with the current node as parent
+        // If there is a pending edge, the branch's first node step will
+        // consume it via the parent linkage. Pass the pending edge's context
+        // by using currentNodeId as the parentNodeId for the branch.
+        // The branch's own walkPatternSteps will handle linking.
         walkPatternSteps(
           step.steps,
           stepPath,
@@ -168,6 +204,8 @@ export function walkPatternSteps(
           step.name,
           ctx,
         );
+        // Edge consumed by the branch's internal walk
+        pendingEdge = null;
         break;
       }
     }

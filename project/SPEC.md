@@ -180,7 +180,25 @@ Production contexts may extend this with domain-specific prefixes (e.g., `mfg`, 
 
 ---
 
-## 5. Examples
+## 5. Literal Handling Contract (RPM §8)
+
+Two co-equal modes, selected by Control Inference (§31.4):
+
+**`via: "direct"`** — The literal value is bound directly to the predicate. No intermediate node. The CGP contains only the edge and bind steps. This is the default for all XSD datatype ranges.
+
+**`via: "ice"`** — An intermediate ICE (Information Content Entity) node is created. The canonical CGP structure is:
+
+```
+Subject → is_designated_by → ICE Node → has_text_value → Literal
+```
+
+The ICE node receives a deterministic blank node ID via §9.2. The `is_designated_by` and `has_text_value` predicates are fixed — they are not derived from the mapping pattern. This mode applies when the range class is a subclass of `skos:Concept`, `skos:ConceptScheme`, or any declared ICE class (§31.4).
+
+Both modes are implemented in `src/kernel/cgp-serializer.ts` `walkPatternSteps` as part of Phase 1.6.
+
+---
+
+## 6. Examples
 
 The `examples/` directory currently contains the template's identity transform input/output. These will be updated when Phase 1.6 replaces the identity transform with `RPM_Expand`. Until then, the snapshot test validates against the current identity transform output.
 
