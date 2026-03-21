@@ -58,6 +58,24 @@
 
 ---
 
+## ADR-004: Oxigraph for CT-11 Test Endpoint
+
+**Date:** 2026-03-21
+
+**Decision:** Use Oxigraph as the SPARQL test endpoint for CT-11 (Frequent Path Discovery) and all Phase 2 integration tests.
+
+**Context:** CT-11 requires a SPARQL 1.1 endpoint seeded with deterministic fixture data (1,000 test:Person instances, 950 via 4-hop path, 50 via 2-hop path). The endpoint must start in CI without manual provisioning, run in < 10s, and be isolated from production. Alternatives considered: Apache Jena (heavy JVM dependency, slow startup), RDF4J (same JVM issues), in-memory N-Quads evaluator (incomplete SPARQL 1.1 support). Oxigraph is MIT-licensed, ships as a single binary, starts in under a second, has a standards-compliant SPARQL 1.1 endpoint, and is available as a Docker image for GitHub Actions service containers.
+
+**Consequences:**
+- CT-11 fixture data stored as N-Quads or Turtle in `tests/fixtures/ct-11-endpoint/`
+- CI provisions Oxigraph as a GitHub Actions service container from `ghcr.io/oxigraph/oxigraph`
+- Fixture loaded via Oxigraph's bulk load or SPARQL UPDATE on startup
+- All Phase 2 SPARQL integration tests run against the same Oxigraph instance
+- No JVM dependency — Node.js 22 + Oxigraph binary is the full CI stack
+- Oxigraph is a devDependency concern only — it never enters the kernel or production runtime
+
+---
+
 <!--
   Add new decisions below. Use the format:
 

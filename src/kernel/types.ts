@@ -73,6 +73,12 @@ export interface BindStep {
 export interface LiteralStep {
   type: "literal";
   via: "direct" | "ice";
+  /** OWL class IRI for the ICE node (RPM §8.1). Populated from ontology closure by Phase 2.3.
+   *  Defaults to "rpm:InformationContentEntity" if absent. */
+  iceClass?: string;
+  /** Designation predicate IRI (RPM §8.1). Populated from ontology closure by Phase 2.3.
+   *  Defaults to "rpm:is_designated_by" if absent. */
+  icePredicate?: string;
 }
 
 export interface BranchStep {

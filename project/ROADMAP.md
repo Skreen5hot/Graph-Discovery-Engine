@@ -17,7 +17,7 @@
 
 **Goal:** Get the template building, tested, and green. Establish project identity, clean up git state, create the domain SPEC placeholder, and configure the repo so every future session starts from a working baseline.
 
-**Status:** In Progress
+**Status:** Complete
 
 **Layer:** N/A — infrastructure and project scaffolding only. No domain code.
 
@@ -61,18 +61,18 @@ The template shipped with a generic `project/SPEC.md` that was deleted. Create t
 
 ### 0.4 Clean Git State
 
-**Status:** In Progress | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 The working tree has uncommitted changes from project setup. Get to a clean baseline commit.
 
 **Acceptance Criteria:**
-- [ ] `project/RPM-v2.1-FINAL.md` tracked (the normative engine spec)
-- [ ] `project/GDE-UI-SPEC-v2.1.md` tracked (the normative UI spec)
-- [ ] `project/ROADMAP.md` changes committed (this roadmap)
-- [ ] `project/SPEC.md` placeholder committed
+- [x] `project/RPM-v2.1-FINAL.md` tracked (the normative engine spec)
+- [x] `project/GDE-UI-SPEC-v2.1.md` tracked (the normative UI spec)
+- [x] `project/ROADMAP.md` changes committed (this roadmap)
+- [x] `project/SPEC.md` placeholder committed
 - [x] `project/DECISIONS.md` updated: ADR-002 (domain specs) + ADR-003 (GitHub Pages + Actions)
-- [ ] `.claude/settings.json` tracked if appropriate, or added to `.gitignore`
-- [ ] Working tree clean on `main`
+- [x] `.claude/settings.json` added to `.gitignore` (user-local settings)
+- [x] Working tree clean on `main`
 
 ### 0.5 Add Development Convenience Scripts
 
@@ -416,6 +416,13 @@ Write domain-specific tests for all Phase 1 kernel functions.
 
 **Layer:** 0 (`src/kernel/`) for registry assembly and tier logic; 2 (`src/adapters/`) for SPARQL endpoint connectivity.
 
+**Execution order:** 2.0 (ADR-004 done) → 2.1 + 2.2 in parallel → 2.3 → 2.4 → 2.5 → 2.6 → 2.7.
+
+**Pre-Phase 2 setup (complete):**
+- [x] ADR-004: Oxigraph chosen for CT-11 test endpoint
+- [x] `LiteralStep.iceClass` and `LiteralStep.icePredicate` optional fields added to `types.ts` — serializer reads them with fallback to `rpm:` defaults. Phase 2.3 populates from ontology closure.
+- [ ] **owl:oneOf introspection query needed:** Q1–Q5 in §32.3 do not fetch `owl:oneOf` declarations. When Phase 2.2 loads the ontology closure, it must populate `OntologyClass.enumeratedIndividuals` by querying for `owl:oneOf` restrictions. Add a Q6 query to the SPARQL introspection set before Phase 2.3 starts: `SELECT ?class ?individual WHERE { ?class owl:oneOf/rdf:rest*/rdf:first ?individual }`. This is cheap and prevents enumeration detection (§31.3) from being silently inert in production.
+
 ### 2.0 CT-11 Test Endpoint Infrastructure
 
 **Status:** Not Started | **Priority:** Critical — blocks 2.5 and 2.7
@@ -518,8 +525,8 @@ Load and index the ontology closure for subsumption checks, label lookups, and p
 - [ ] All tests pass via `npm test`
 
 **Phase 2 Prerequisites (from Phase 1 review):**
-- ICE class and predicate in `cgp-serializer.ts` are currently hardcoded as `rpm:InformationContentEntity` and `rpm:is_designated_by`. RPM §8.1 requires these to come from the registry/ontology closure (e.g., `cco:InformationContentEntity`, `cco:is_designated_by` in BFO/CCO graphs). Fix requires either extending `LiteralStep` with `iceClass`/`icePredicate` fields or looking them up from the closure. Must be resolved before real ontology expansion.
-- `stubTypeResolver` in `expand.ts` is retrieved from `context.typeResolver` via unsafe cast on `unknown`. Phase 2.2 replaces the stub with real OWL/RDFS implementation — at that point, make `typeResolver` an explicit optional parameter on `rpmExpand` rather than threading through the context bag.
+- [x] ~~ICE class and predicate hardcoded~~ → Resolved: `LiteralStep.iceClass` and `LiteralStep.icePredicate` optional fields added. Serializer reads them with `??` fallback to `rpm:` defaults. Phase 2.3 populates from ontology closure.
+- [ ] `stubTypeResolver` in `expand.ts` is retrieved from `context.typeResolver` via unsafe cast on `unknown`. Phase 2.2 replaces the stub with real OWL/RDFS implementation — at that point, make `typeResolver` an explicit optional parameter on `rpmExpand` rather than threading through the context bag.
 
 **NOT in scope for Phase 2:**
 - HTTP API endpoints — that is Phase 3
