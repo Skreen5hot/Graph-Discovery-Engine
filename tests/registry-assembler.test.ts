@@ -241,7 +241,13 @@ console.log("\n  --- Discovery Report ---");
 
 try {
   const results: TierResults = {
-    tier1: { mappings: [makeMapping({ shorthand: "t1" })], promotionLog: [{ shorthand: "t1x", exposure: "internal", reason: "Predicate label unresolvable" }] },
+    tier1: {
+      mappings: [
+        makeMapping({ shorthand: "t1" }),
+        makeMapping({ shorthand: "t1-internal", exposure: "internal" }),
+      ],
+      promotionLog: [{ shorthand: "t1-internal", exposure: "internal", reason: "Predicate label unresolvable" }],
+    },
     tier2: { mappings: [makeMapping({ shorthand: "t2", tier: 2 })], promotionLog: [] },
     tier3: { mappings: [makeMapping({ shorthand: "t3", tier: 3 })], promotionLog: [] },
   };
@@ -251,6 +257,7 @@ try {
   strictEqual(report["@type"], "rpm:DiscoveryReport");
   strictEqual(report.endpoint, "https://example.org/sparql");
   strictEqual(report.duration_ms, 14320);
+  strictEqual(report.tier1.patternsFound, 2, "2 patterns found (1 promoted + 1 suppressed)");
   strictEqual(report.tier1.promoted, 1);
   strictEqual(report.tier1.suppressed, 1);
   strictEqual(report.tier2.promoted, 1);

@@ -31,7 +31,6 @@ import type {
   TypeResolver,
 } from "./types.js";
 import { resolveLabel } from "./labeling.js";
-import { rankBySpecificity } from "./compose.js";
 import type { PromotionLogEntry } from "./tier1-discovery.js";
 
 // ---------------------------------------------------------------------------
@@ -142,7 +141,6 @@ function buildExistingPairs(mappings: MappingDefinition[]): Set<string> {
 function buildIntentCatalog(
   mappings: MappingDefinition[],
   closure: OntologyClosure,
-  typeResolver: TypeResolver,
 ): IntentCatalog {
   const smeSurface = mappings.filter((m) => m.exposure === "smeSurface");
 
@@ -182,18 +180,17 @@ function buildIntentCatalog(
     groupMap.set(groupName, group);
   }
 
-  // Rank within each group by specificity
+  // Sort within each group by tier ascending, then label alphabetically.
+  // Specificity ranking happens at query time (Phase 3.1 GET /rpm/catalog?subjectType=)
+  // when the SME's selected subject type is known. The catalog stores the
+  // stable default order: Tier 1 before Tier 2 before Tier 3, then alphabetical.
   const groups: CatalogGroup[] = [...groupMap.entries()].map(
     ([name, intents]) => ({
       name,
-      // For catalog display, we rank by the first domain class's subject types
-      intents: intents.length > 1
-        ? rankBySpecificity(
-            intents,
-            intents[0].domainClasses,
-            typeResolver,
-          )
-        : intents,
+      intents: [...intents].sort((a, b) => {
+        if (a.tier !== b.tier) return a.tier - b.tier;
+        return a.ui.label.localeCompare(b.ui.label);
+      }),
     }),
   );
 
@@ -218,22 +215,25 @@ function buildDiscoveryReport(
   const tier2Log = tierResults.tier2.promotionLog;
   const tier3Log = tierResults.tier3.promotionLog;
 
+  // Count from mappings directly — mappings array contains all discovered
+  // (both smeSurface and internal). Do NOT add promotion log internal count
+  // to mappings.length — that would double-count suppressed entries.
   const tier1: Tier1Report = {
-    patternsFound: tierResults.tier1.mappings.length + tier1Log.filter((l) => l.exposure === "internal").length,
+    patternsFound: tierResults.tier1.mappings.length,
     promoted: tierResults.tier1.mappings.filter((m) => m.exposure === "smeSurface").length,
-    suppressed: tier1Log.filter((l) => l.exposure === "internal").length,
+    suppressed: tierResults.tier1.mappings.filter((m) => m.exposure === "internal").length,
   };
 
   const tier2: Tier2Report = {
-    chainsFound: tierResults.tier2.mappings.length + tier2Log.filter((l) => l.exposure === "internal").length,
+    chainsFound: tierResults.tier2.mappings.length,
     promoted: tierResults.tier2.mappings.filter((m) => m.exposure === "smeSurface").length,
-    suppressed: tier2Log.filter((l) => l.exposure === "internal").length,
+    suppressed: tierResults.tier2.mappings.filter((m) => m.exposure === "internal").length,
   };
 
   const tier3: Tier3Report = {
-    pathsAnalyzed: tierResults.tier3.mappings.length + tier3Log.filter((l) => l.exposure === "internal").length,
+    pathsAnalyzed: tierResults.tier3.mappings.length,
     compoundIntentsPromoted: tierResults.tier3.mappings.filter((m) => m.exposure === "smeSurface").length,
-    suppressed: tier3Log.filter((l) => l.exposure === "internal").length,
+    suppressed: tierResults.tier3.mappings.filter((m) => m.exposure === "internal").length,
     capHit: tier3Log.filter((l) => l.reason.includes("cap")).length,
   };
 
@@ -281,7 +281,7 @@ function buildDiscoveryReport(
 export function assembleRegistry(
   tierResults: TierResults,
   closure: OntologyClosure,
-  typeResolver: TypeResolver,
+  _typeResolver: TypeResolver,
   staticRegistry?: StaticRegistry,
   endpoint: string = "",
   durationMs: number = 0,
@@ -311,7 +311,7 @@ export function assembleRegistry(
   };
 
   // Step 4: Build Intent Catalog
-  const catalog = buildIntentCatalog(merged, closure, typeResolver);
+  const catalog = buildIntentCatalog(merged, closure);
 
   // Step 5: Discovery Report
   const catalogSize: CatalogSizeReport = {
