@@ -170,13 +170,19 @@ export function walkPatternSteps(
             stepPath,
             branchName,
           );
+          // TODO: ICE class and predicate must come from registry/ontology (RPM §8.1).
+          // Currently hardcoded as rpm: namespace terms. In a real BFO/CCO graph these
+          // would be cco:InformationContentEntity and cco:is_designated_by. The
+          // LiteralStep type needs iceClass/icePredicate fields populated from the
+          // mapping definition. This is a Phase 2 prerequisite — must be resolved
+          // before any real ontology expansion is attempted.
           const iceNode: CGPNode = {
             "@id": iceNodeId,
             "@type": ["rpm:InformationContentEntity"],
           };
           ctx.nodes.push(iceNode);
 
-          // Link current node to ICE node via is_designated_by
+          // Link current node to ICE node via the pending edge predicate or fallback
           if (pendingEdge) {
             const parentNode = findOrCreateParentLink(currentNodeId, ctx);
             parentNode[pendingEdge.predicate] = { "@id": iceNodeId };

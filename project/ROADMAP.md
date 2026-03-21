@@ -299,17 +299,25 @@ Implement the path pattern grammar and the recursive expansion model. Pure funct
 
 ### 1.7 Error Handling (§11, §25)
 
-**Status:** Not Started | **Priority:** Medium
+**Status:** Complete | **Priority:** Medium
 
 Implement structured error objects and the Dynamic Template Engine. The `TranslatedError` output is consumed directly by the UI for inline validation and banner errors (UI Spec §19).
 
+**Implementation:** `src/kernel/error-translation.ts` — `translateError()`, `buildTranslationContext()`, `containsProhibitedTerm()`.
+
 **Acceptance Criteria:**
-- [ ] All error codes from §11.2 implemented as `RPMError` objects (including `CRAWL_ENDPOINT_UNREACHABLE`, `LABELING_LAW_EXHAUSTED`)
-- [ ] Dynamic Template Engine: label injection tokens `{subjectLabel}`, `{intentLabel}`, `{domainLabel}`, `{fieldLabel}` (§25.2)
-- [ ] All 11 error templates from §25.2 implemented
-- [ ] `TranslatedError` output: `userMessage`, `severity`, `placement`, `fieldBinding`, `clauseIndex`
-- [ ] CT-12 test cases pass (no raw IRIs or error codes in user messages)
-- [ ] `npm test` and `npm run test:purity` pass
+- [x] All 11 error codes from §11.2 have templates (including `CRAWL_ENDPOINT_UNREACHABLE`, `LABELING_LAW_EXHAUSTED`)
+- [x] Dynamic Template Engine: label injection tokens `{subjectLabel}`, `{intentLabel}`, `{domainLabel}`, `{fieldLabel}`, `{intentLabel2}` (§25.2)
+- [x] Token fallback values when labels unresolvable: "this record type", "this search", "this field" (§25.2)
+- [x] All 11 error templates from §25.2 implemented with correct severity/placement classification
+- [x] `TranslatedError` output: `userMessage`, `severity`, `placement`, `fieldBinding`, `clauseIndex`
+- [x] CT-12: no raw IRIs, error codes, namespace prefixes, or internal identifiers in any userMessage
+- [x] `containsProhibitedTerm()` scanner for CT-01/CT-12 compliance
+- [x] `npm test` (165/165) and `npm run test:purity` (10 kernel files) pass
+
+**Tests:** `tests/error-translation.test.ts` — 29 tests covering CT-12 (SUBCLASS_VIOLATION with labels + prohibited term scan), all 11 templates (completeness + no prohibited terms), severity/placement classification (validation vs system), token injection (3 patterns), token fallbacks (2 cases), clauseIndex passthrough (2 cases), buildTranslationContext (1), containsProhibitedTerm (7 cases).
+
+**No `types.ts` changes.**
 
 ### 1.8 Narrative Synthesis Layer (§34)
 
@@ -485,6 +493,10 @@ Load and index the ontology closure for subsumption checks, label lookups, and p
   - [ ] Tier 1 timeout test: simulate Tier 1 exceeding its 10s allocation, verify system remains operational with Tier 2 + 3 only (or empty catalog if no tiers complete), and verify error is logged without crashing
   - [ ] All-tiers-timeout test: simulate all tiers timing out, verify system starts with an empty catalog and emits appropriate log, does NOT crash, and reports the condition in the Discovery Report
 - [ ] All tests pass via `npm test`
+
+**Phase 2 Prerequisites (from Phase 1 review):**
+- ICE class and predicate in `cgp-serializer.ts` are currently hardcoded as `rpm:InformationContentEntity` and `rpm:is_designated_by`. RPM §8.1 requires these to come from the registry/ontology closure (e.g., `cco:InformationContentEntity`, `cco:is_designated_by` in BFO/CCO graphs). Fix requires either extending `LiteralStep` with `iceClass`/`icePredicate` fields or looking them up from the closure. Must be resolved before real ontology expansion.
+- `stubTypeResolver` in `expand.ts` is retrieved from `context.typeResolver` via unsafe cast on `unknown`. Phase 2.2 replaces the stub with real OWL/RDFS implementation — at that point, make `typeResolver` an explicit optional parameter on `rpmExpand` rather than threading through the context bag.
 
 **NOT in scope for Phase 2:**
 - HTTP API endpoints — that is Phase 3
