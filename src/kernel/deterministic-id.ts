@@ -73,31 +73,39 @@ export function generateBlankNodeId(canonicalInput: string): string {
 }
 
 /**
- * Generate a deterministic blank node ID for a node in an expanded CGP.
+ * Generate a deterministic blank node ID for a node in an expanded CGP (RPM §9.2).
  *
- * The canonical input is built from:
- * 1. mappingShorthand — the mapping's shorthand IRI (full predicate IRI for discovered mappings)
- * 2. subjectId — the subject entity's @id
- * 3. stepPath — the dot-separated step path within the pattern (e.g., "0.1.2")
- * 4. branchName — the branch name if inside a branch step, empty string otherwise
+ * The canonical input is built from six components in spec-prescribed order:
+ * 1. subjectId — the subject entity's @id
+ * 2. intent — the intent shorthand used in the expand call
+ * 3. mappingShorthand — the mapping's shorthand IRI (full predicate IRI for discovered)
+ * 4. stepPath — the dot-separated step path within the pattern (e.g., "0.1.2")
+ * 5. branchName — the branch name if inside a branch step, empty string otherwise
+ * 6. occurrenceIndex — disambiguation index for repeated patterns (default 0)
  *
- * @param mappingShorthand - The mapping shorthand (full predicate IRI for discovered)
  * @param subjectId - The subject entity @id
+ * @param intent - The intent shorthand from the expand call
+ * @param mappingShorthand - The mapping shorthand (full predicate IRI for discovered)
  * @param stepPath - Dot-separated step indices (e.g., "0", "0.1", "0.1.2")
  * @param branchName - The enclosing branch name, or empty string
+ * @param occurrenceIndex - Disambiguation for repeated patterns (default 0, no leading zeros)
  * @returns A deterministic blank node ID: "_:b" + 16 hex chars
  */
 export function generateNodeId(
-  mappingShorthand: string,
   subjectId: string,
+  intent: string,
+  mappingShorthand: string,
   stepPath: string,
   branchName: string = "",
+  occurrenceIndex: number = 0,
 ): string {
   const canonicalInput = buildCanonicalInput(
-    mappingShorthand,
     subjectId,
+    intent,
+    mappingShorthand,
     stepPath,
     branchName,
+    String(occurrenceIndex),
   );
   return generateBlankNodeId(canonicalInput);
 }

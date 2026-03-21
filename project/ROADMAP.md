@@ -227,9 +227,11 @@ SHA-256 blank node IDs. Pure function: mapping shorthand + structural inputs →
 **Exported functions:**
 - `buildCanonicalInput(...components)` — pipe-separated canonical string with escape rules
 - `generateBlankNodeId(canonicalInput)` — `_:b` + 16 hex chars from SHA-256
-- `generateNodeId(shorthand, subjectId, stepPath, branchName)` — full CGP node ID
+- `generateNodeId(subjectId, intent, mappingShorthand, stepPath, branchName, occurrenceIndex)` — full CGP node ID, 6 components in §9.2 order
 - `generateHexHash(input)` — raw 16-char hex (no prefix)
 - `generateOverrideId(shorthand, createdAt)` — `ov_` + 8 hex chars per §35.3
+
+**Post-review fix:** `generateNodeId` corrected from 4 components in wrong order to 6 components in §9.2 spec order: `subjectId | intent | mappingShorthand | stepPath | branchName | occurrenceIndex`. Added `intent` and `occurrenceIndex` parameters. CT-02 fixtures and component-order verification tests updated to match. Tests now include explicit component-swap assertions proving order sensitivity.
 
 **Note:** CT-02 in v2.1 spec says "see v1.5 §30.2–30.8 for full specifications." The v1.5 spec is not in this repo. The canonical input format (pipe-separated, escaped) was designed to match the stated contract in §9. If v1.5 canonical input strings are obtained later, CT-02 fixture expectations should be updated to match.
 
