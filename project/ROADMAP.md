@@ -204,19 +204,34 @@ Implement the XSD-to-UI component mapping. Pure function: range type in → `inp
 
 **Tests:** `tests/control-inference.test.ts` — 33 tests covering CT-10 (6 rows), all 18 extended XSD types, enumeration detection (≤20 / >20 / xsd:token override), ICE mode, unit inference (qudt annotation, comment pattern, absent), and via:direct verification.
 
-**Pre-implementation type addition:** `EnumeratedIndividual` type and `OntologyClass.enumeratedIndividuals` field added to support §31.3 enumeration detection.
+**Pre-implementation type addition:** `EnumeratedIndividual` type and `OntologyClass.enumeratedIndividuals` field added to `types.ts` to support §31.3 enumeration detection.
+
+**Known gap — `xsd:token` enumeration detection is silently inert:** The `xsd:token` branch in `inferControl` calls `detectEnumeration("xsd:token", closure)`, which queries `closure.classes.get("xsd:token")` — always returns `undefined` because `"xsd:token"` is an XSD type literal, not an OWL class IRI. The fallback to `text` is correct. The fix requires passing the actual range class IRI from `OntologyProperty.range`, not the XSD type string. Deferred to Phase 3 when the crawl populates range data and the full predicate entry is available.
 
 ### 1.4 Deterministic ID Generation (§9)
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 SHA-256 blank node IDs. Pure function: mapping shorthand + structural inputs → deterministic hex ID.
 
+**Implementation:** `src/kernel/deterministic-id.ts` — 5 exported functions, all pure and deterministic.
+
 **Acceptance Criteria:**
-- [ ] SHA-256 hash truncated to 16 lowercase hex characters
-- [ ] For discovered mappings, input component is the full predicate IRI
-- [ ] Determinism test passes: same inputs → identical IDs across invocations
-- [ ] `npm test` and `npm run test:purity` pass
+- [x] SHA-256 hash truncated to 16 lowercase hex characters
+- [x] For discovered mappings, input component is the full predicate IRI
+- [x] CT-02 Hash Stability: 5 fixtures × 1,000 runs each, all identical
+- [x] `npm test` (99/99) and `npm run test:purity` (7 kernel files) pass
+
+**Tests:** `tests/deterministic-id.test.ts` — 21 tests covering CT-02 (5 fixtures × 1,000 runs), ID format, canonical input serialization (pipe separation, escaping), uniqueness (4 component-difference tests), generateHexHash, and overrideId generation (§35.3).
+
+**Exported functions:**
+- `buildCanonicalInput(...components)` — pipe-separated canonical string with escape rules
+- `generateBlankNodeId(canonicalInput)` — `_:b` + 16 hex chars from SHA-256
+- `generateNodeId(shorthand, subjectId, stepPath, branchName)` — full CGP node ID
+- `generateHexHash(input)` — raw 16-char hex (no prefix)
+- `generateOverrideId(shorthand, createdAt)` — `ov_` + 8 hex chars per §35.3
+
+**Note:** CT-02 in v2.1 spec says "see v1.5 §30.2–30.8 for full specifications." The v1.5 spec is not in this repo. The canonical input format (pipe-separated, escaped) was designed to match the stated contract in §9. If v1.5 canonical input strings are obtained later, CT-02 fixture expectations should be updated to match.
 
 ### 1.5 Canonical JSON-LD Serializer
 
