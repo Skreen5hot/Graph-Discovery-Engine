@@ -308,15 +308,39 @@ try {
   fail("override curator write", error);
 }
 
-// GET overrides — now has 1
+// GET overrides — now has 1, with originalLabel
 try {
   const { status, body } = await api("/rpm/overrides", { role: "curator" });
   strictEqual(status, 200);
   strictEqual(body.count, 1);
   strictEqual(body.overrides[0].label, "Catalyst Agent");
-  pass("GET /rpm/overrides after POST → count=1");
+  strictEqual(body.overrides[0].originalLabel, "Has Catalyst", "originalLabel captured at creation time");
+  pass("GET /rpm/overrides after POST → count=1, originalLabel='Has Catalyst'");
 } catch (error) {
   fail("overrides after post", error);
+}
+
+// DELETE override — restores original label
+try {
+  // First get the overrideId
+  const listRes = await api("/rpm/overrides", { role: "curator" });
+  const overrideId = listRes.body.overrides[0].overrideId;
+
+  const { status, body } = await api(`/rpm/overrides/${overrideId}`, {
+    method: "DELETE",
+    role: "curator",
+  });
+  strictEqual(status, 200);
+  strictEqual(body.catalogRebuilt, true);
+  strictEqual(body.revertedTo, "discovered");
+
+  // Verify the label was restored on the catalog entry
+  const catalogRes = await api("/rpm/catalog/mfg:hasCatalyst");
+  strictEqual(catalogRes.body.ui.label, "Has Catalyst", "Label restored after DELETE");
+
+  pass("DELETE /rpm/overrides/:overrideId restores original label");
+} catch (error) {
+  fail("override delete restore", error);
 }
 
 // ----- Refresh -----

@@ -286,6 +286,9 @@ export function registerRpmRoutes(state: ServerState) {
       return;
     }
 
+    // Capture the pre-override label BEFORE mutation
+    const originalLabel = mapping.ui.label;
+
     const now = new Date().toISOString();
     const overrideId = generateOverrideId(body.shorthand, now);
 
@@ -299,6 +302,7 @@ export function registerRpmRoutes(state: ServerState) {
       createdAt: now,
       createdBy: req.role ?? "unknown",
       appliesTo: (body.appliesTo as "discovered" | "static" | "any") ?? "discovered",
+      originalLabel,
     };
 
     // Replace existing override for same shorthand (§35.4)
@@ -340,6 +344,12 @@ export function registerRpmRoutes(state: ServerState) {
     state.overrideStore.overrides = state.overrideStore.overrides.filter(
       (o) => o.overrideId !== overrideId,
     );
+
+    // Restore the original label on the in-memory mapping
+    const mapping = state.registry.mappings.find((m) => m.shorthand === shorthand);
+    if (mapping && override.originalLabel) {
+      mapping.ui.label = override.originalLabel;
+    }
 
     // Persist
     await saveOverrideStore(state.overrideStorePath, state.overrideStore);
@@ -410,17 +420,9 @@ export function registerRpmRoutes(state: ServerState) {
 
 /**
  * Get the original (pre-override) label for a mapping.
- * This is the label from the discovered or static registry before
- * any override was applied.
+ * Reads from the OverrideEntry.originalLabel captured at creation time.
  */
 function getOriginalLabel(shorthand: string, state: ServerState): string | null {
-  // The original label is stored in the registry's mapping BEFORE
-  // overrides are applied. Since overrides mutate ui.label in place,
-  // we need to find the override and use the mapping's current label
-  // as the "original" was before. For a clean implementation, the
-  // original should be stored when the override is first created.
-  // For now, return the mapping's label (which may already be overridden).
-  // Phase 4 should store originalLabel on the OverrideEntry at creation time.
-  const mapping = state.registry.mappings.find((m) => m.shorthand === shorthand);
-  return mapping?.ui.label ?? null;
+  const override = state.overrideStore.overrides.find((o) => o.shorthand === shorthand);
+  return override?.originalLabel ?? null;
 }

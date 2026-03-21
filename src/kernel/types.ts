@@ -426,6 +426,10 @@ export interface OverrideEntry {
   createdAt: string;
   createdBy: string;
   appliesTo: OverrideScope;
+  /** The pre-override ui.label captured at override creation time.
+   *  Used by M4 Revert to show "This will restore '[originalLabel]'."
+   *  Null for overrides that did not change the label. */
+  originalLabel?: string;
 }
 
 /** The durable override store (RPM §35.3). */
