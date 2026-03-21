@@ -481,15 +481,23 @@ Load and index the ontology closure for subsumption checks, label lookups, and p
 
 ### 2.3 Tier 1 — Direct Predicate Discovery (§32.4)
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
+
+**Implementation:** `src/kernel/tier1-discovery.ts` — `generateTier1Mappings()`.
 
 **Acceptance Criteria:**
-- [ ] Processes Q1 (object patterns) and Q2 (literal patterns)
-- [ ] Generates one mapping per unique `(subjectClass, predicate)` pair
-- [ ] Pattern: single `branch` with `edge`, `node`, `bind`
-- [ ] UI block auto-populated via Labeling Law + Control Inference
-- [ ] `exposure` set by automated promotion rules (§32.7)
-- [ ] `tier: 1`, `source: "discovered"`
+- [x] Processes Q1 (object patterns) and Q2 (literal patterns)
+- [x] Generates one mapping per unique `(subjectClass, predicate)` pair; Q1 takes precedence over Q2
+- [x] Object pattern: `branch` with `edge`, `node`, `bind`; literal pattern: `branch` with `edge`, `literal` (via direct)
+- [x] UI block auto-populated: label/labelSource from Labeling Law, description from hint resolution, group from auto-grouping, subjectLabel from domain class, inputParameters from Control Inference, outputBinds with resolved labels (not IRIs)
+- [x] `exposure` set by automated promotion rules (§32.7): predicate label + domain label + range known → smeSurface; else internal
+- [x] `tier: 1`, `source: "discovered"`
+- [x] Promotion log with reason per mapping
+- [x] `npm test` (241/241) and `npm run test:purity` (15 kernel files) pass
+
+**Tests:** `tests/tier1-discovery.test.ts` — 8 tests: Q1 object pattern (1), UI block auto-population (1), Q2 literal pattern (1), deduplication Q1>Q2 (1), multiple subject classes (1), promotion success (1), promotion failure unresolvable (1), promotion no range (1).
+
+**No `types.ts` changes.**
 
 ### 2.4 Tier 2 — OWL Property Chain Discovery (§32.5)
 

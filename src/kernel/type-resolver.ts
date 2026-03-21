@@ -69,6 +69,10 @@ function walkSuperclasses(
  * Uses BFS to find the shortest path through the superclass hierarchy.
  * Returns -1 if no subsumption relationship exists.
  * Handles cycles via a visited set.
+ *
+ * BFS guarantees the shortest path is found first (level-by-level exploration).
+ * This property makes specificity scoring stable when a subject type has
+ * multiple inheritance paths to a domain class (e.g., diamond inheritance).
  */
 function calculateDistance(
   subjectType: string,
