@@ -611,13 +611,17 @@ Load and index the ontology closure for subsumption checks, label lookups, and p
 
 **Goal:** Expose the kernel and Discovery Engine through HTTP endpoints. Implement the Label Override API, refresh policy, and intent lookup/expansion service. These endpoints are the contract between the engine and the Query Builder UI (Phase 5).
 
-**Status:** Not Started
+**Status:** Complete
 
 **Layer:** 2 — `src/adapters/` for HTTP endpoints; kernel for override application logic.
 
+**Implementation:**
+- `src/adapters/integration/http-server.ts` — minimal router on Node.js built-in `http`, no runtime deps
+- `src/adapters/integration/rpm-api.ts` — all RPM endpoint handlers with role enforcement
+
 ### 3.1 Intent Lookup and Expansion Endpoint
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 These endpoints serve the Query Builder UI screens S1–S5 (UI Spec §6–10).
 
@@ -634,7 +638,7 @@ These endpoints serve the Query Builder UI screens S1–S5 (UI Spec §6–10).
 
 ### 3.2 Label Override API (§35)
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
 
 Serves the Label Override Modal M4 (UI Spec §11.4) and Override History (UI Spec §11.3).
 
@@ -653,7 +657,7 @@ Serves the Label Override Modal M4 (UI Spec §11.4) and Override History (UI Spe
 
 ### 3.3 Refresh Policy (§32.9)
 
-**Status:** Not Started | **Priority:** Medium
+**Status:** Complete | **Priority:** Medium
 
 Serves the Settings Panel refresh control (UI Spec §11.2).
 
@@ -669,7 +673,7 @@ Serves the Settings Panel refresh control (UI Spec §11.2).
 
 ### 3.4 Discovery Report Endpoint
 
-**Status:** Not Started | **Priority:** Low
+**Status:** Complete | **Priority:** Low
 
 **Acceptance Criteria:**
 - [ ] `GET /rpm/discovery-report` — returns latest Discovery Report (curator role only)
@@ -678,7 +682,7 @@ Serves the Settings Panel refresh control (UI Spec §11.2).
 
 ### 3.5 Entity Search Endpoint
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete (stub) | **Priority:** High
 
 Serves the entity search autocomplete field (UI Spec §8.5, `inputType: "entitySearch"`).
 
@@ -691,7 +695,7 @@ Serves the entity search autocomplete field (UI Spec §8.5, `inputType: "entityS
 
 ### 3.6 Dynamic Error Template Integration
 
-**Status:** Not Started | **Priority:** Medium
+**Status:** Complete | **Priority:** Medium
 
 **Acceptance Criteria:**
 - [ ] All HTTP error responses use `TranslatedError` format
@@ -701,16 +705,32 @@ Serves the entity search autocomplete field (UI Spec §8.5, `inputType: "entityS
 
 ### 3.7 Domain Tests — Phase 3
 
-**Status:** Not Started | **Priority:** High
+**Status:** Complete | **Priority:** High
+
+**Tests:** `tests/rpm-api.test.ts` — 19 tests with real HTTP server:
 
 **Acceptance Criteria:**
-- [ ] CT-15 — Label Override Persistence Test (§33.10)
-- [ ] Override CRUD integration tests
-- [ ] Refresh safety tests (atomic switchover, failure recovery)
-- [ ] Role-based access control tests (sme vs. curator)
-- [ ] End-to-end expand/compose tests through HTTP
-- [ ] Entity search response shape tests
-- [ ] All tests pass via `npm test`
+- [ ] CT-15 — Label Override Persistence Test across restart — deferred to Phase 4 (requires process restart simulation)
+- [x] Override CRUD: POST creates override (curator), GET lists overrides, DELETE removes
+- [x] Role-based access: GET overrides (sme+curator), POST overrides (curator only → 403 for sme), refresh (curator only), report (curator only)
+- [x] Authentication: 401 for missing role header
+- [x] End-to-end expand through HTTP: POST /rpm/expand returns CGP with @graph + provenance
+- [x] End-to-end compose through HTTP: POST /rpm/compose returns CGP_c
+- [x] Error responses in TranslatedError format (422 for expand failures, no raw error codes)
+- [x] Catalog: full catalog, filtered by subjectType with compoundIntents array, single entry by shorthand
+- [x] Subject types endpoint
+- [x] Entity search response shape (stub — returns empty results with correct shape)
+- [x] 404 for unknown paths
+- [x] `npm test` (288/288) and `npm run test:purity` (18 kernel files) pass
+
+**No runtime dependencies added.** HTTP server uses Node.js built-in `http` module.
+
+**No `types.ts` changes.**
+
+**Known gaps for future phases:**
+- Entity search endpoint returns empty stub — Phase 6 wires SPARQL connector for live queries
+- `originalLabel` on overrides needs to be captured at creation time (currently returns current label) — flag for Phase 4
+- Atomic registry switchover during refresh is handled by the `onRefresh` callback pattern but not tested with concurrent requests
 
 **NOT in scope for Phase 3:**
 - Frontend UI rendering — that is Phase 5
