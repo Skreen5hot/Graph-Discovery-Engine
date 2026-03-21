@@ -12,6 +12,7 @@
     "test": "npm run build:tests && node dist-tests/tests/run-tests.js",
     "test:purity": "npm run build:tests && node dist-tests/scripts/ensure-kernel-purity.js",
     "verify": "npm run build && npm test && npm run test:purity",
+    "demo": "node dist/demo.js",
     "clean": "rimraf dist dist-tests"
   },
   "keywords": [

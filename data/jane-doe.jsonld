@@ -1,0 +1,68 @@
+{
+  "@context": {
+    "cco": "http://www.ontologyrepository.com/CommonCoreOntologies/",
+    "obo": "http://purl.obolibrary.org/obo/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "ex": "http://example.org/data/",
+    "val": "cco:has_value"
+  },
+  "@graph": [
+    {
+      "@id": "ex:Person_JaneDoe_001",
+      "@type": "cco:Person",
+      "cco:designated_by": [
+        { "@id": "ex:Name_Jane_001", "@type": "cco:PersonGivenName", "val": "Jane" },
+        { "@id": "ex:Name_Doe_001", "@type": "cco:PersonFamilyName", "val": "Doe" }
+      ],
+      "cco:is_object_of": {
+        "@id": "ex:Birth_Jane_001",
+        "@type": "cco:Birth",
+        "cco:occurs_on": {
+          "@id": "ex:Day_19991231",
+          "@type": "cco:Day",
+          "cco:designated_by": { "@type": "cco:DateIdentifier", "val": "1999-12-31" }
+        }
+      },
+      "obo:RO_0000053": {
+        "@id": "ex:Role_Dev_001",
+        "@type": "cco:OccupationRole",
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" },
+        "cco:described_by": { "@type": "cco:NominalMeasurementInformationContentEntity", "val": "Lead Developer" }
+      },
+      "cco:agent_in": [
+        {
+          "@id": "ex:Residing_Jane_001",
+          "@type": "cco:ActOfResiding",
+          "obo:RO_0000057": {
+            "@id": "ex:Facility_Home_001",
+            "@type": "cco:ResidentialFacility",
+            "cco:designated_by": { "@type": "cco:StreetAddress", "val": "1234 Walnut St" },
+            "obo:RO_0001025": {
+              "@id": "ex:Region_Springfield",
+              "@type": "cco:LocalAdministrativeRegion",
+              "cco:designated_by": { "@type": "cco:DesignativeName", "val": "Springfield" }
+            }
+          }
+        }
+      ],
+      "cco:uses": {
+        "@id": "ex:EmailBox_Jane_001",
+        "@type": "cco:EmailBox",
+        "obo:RO_0000056": {
+          "@id": "ex:Stasis_EmailAssign_001",
+          "@type": "cco:StasisOfTelecommunicationEndpointAssignment",
+          "obo:RO_0000057": {
+            "@id": "ex:Endpoint_Email_001",
+            "@type": "cco:TelecommunicationEndpoint",
+            "cco:designated_by": { "@type": "cco:EmailAddress", "val": "janedoe@email.com" }
+          }
+        }
+      }
+    },
+    {
+      "@id": "ex:Org_TechGiant",
+      "@type": "cco:Organization",
+      "cco:designated_by": { "@id": "ex:Name_TechGiant", "@type": "cco:DesignativeName", "val": "Tech Giant" }
+    }
+  ]
+}
