@@ -450,6 +450,8 @@ export function registerRpmRoutes(state: ServerState) {
   // ----- POST /rpm/execute -----
   router.post("/rpm/execute", async (req, res) => {
     const body = req.body as { cgpC?: CGP_c; subjectType?: string } | undefined;
+
+
     if (!body?.cgpC) {
       sendError(res, 400, "Request must include a 'cgpC' field.", "validation");
       return;

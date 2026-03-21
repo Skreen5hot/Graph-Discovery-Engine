@@ -106,18 +106,21 @@ export function App() {
         return { id: i, values, narrativeSummary, narrativePath };
       });
 
-      // Column headers from outputBind.label
-      const columns = mappingDetails
+      // Column headers: merge outputBind labels AND binding keys from results.
+      // Literal-type clauses have empty outputBinds, so their columns only
+      // appear in the binding keys. Deduplicate while preserving order.
+      const outputBindColumns = mappingDetails
         .filter(Boolean)
-        .flatMap((m: any) => (m.ui?.outputBinds ?? []).map((ob: any) => ob.label))
-        .filter((label: string, idx: number, arr: string[]) => arr.indexOf(label) === idx);
+        .flatMap((m: any) => (m.ui?.outputBinds ?? []).map((ob: any) => ob.label));
 
-      // If no outputBind columns, use binding keys from results
-      const effectiveColumns = columns.length > 0
-        ? columns
-        : queryResults.length > 0
-          ? Object.keys(queryResults[0].bindings)
-          : clauses.map((c) => c.label);
+      const bindingKeyColumns = queryResults.length > 0
+        ? Object.keys(queryResults[0].bindings)
+        : [];
+
+      const allColumns = [...outputBindColumns, ...bindingKeyColumns];
+      const effectiveColumns = allColumns.length > 0
+        ? allColumns.filter((label, idx, arr) => arr.indexOf(label) === idx)
+        : clauses.map((c) => c.label);
 
       setResults({
         rows: resultRows.length > 0 ? resultRows : [
