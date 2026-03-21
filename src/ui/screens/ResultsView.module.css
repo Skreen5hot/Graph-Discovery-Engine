@@ -1,0 +1,119 @@
+/* Screen 5 — Results View — §10 */
+
+.container { padding: var(--space-5); }
+
+/* Results bar */
+.resultsBar {
+  display: flex; align-items: center; gap: var(--space-3);
+  margin-bottom: var(--space-4); padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--neutral-200);
+}
+.refineLink {
+  background: none; border: none; color: var(--accent-500);
+  cursor: pointer; font-size: var(--text-body-sm); font-family: var(--font-ui);
+}
+.resultCount { font-size: var(--text-body-sm); color: var(--neutral-600); }
+
+.controls {
+  display: flex; justify-content: flex-end; margin-bottom: var(--space-3);
+}
+.pageSizeSelect {
+  padding: var(--space-1) var(--space-2); font-size: var(--text-caption);
+  border: 1px solid var(--neutral-300); border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+}
+
+/* Table */
+.table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--text-body-sm);
+}
+.rowNumHeader, .columnHeader {
+  text-align: left; padding: var(--space-2) var(--space-3);
+  border-bottom: 2px solid var(--neutral-200);
+  font-size: var(--text-label); font-weight: var(--weight-medium);
+  color: var(--neutral-700);
+}
+.rowNumHeader { width: 40px; }
+.columnHeader { min-width: 120px; user-select: none; }
+
+.dataRow:hover { background: var(--neutral-50); }
+.rowNum {
+  padding: var(--space-2) var(--space-3); color: var(--neutral-500);
+  font-size: var(--text-caption);
+}
+.cell {
+  padding: var(--space-2) var(--space-3); color: var(--neutral-800);
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+/* NarrativeSummary — §10.3, §12.4 */
+.narrativeRow td {
+  padding: 0 var(--space-3) var(--space-3);
+  border-bottom: 1px solid var(--neutral-200);
+}
+.narrativeSummary {
+  font-size: var(--text-body-sm); font-style: italic;
+  color: var(--neutral-600); line-height: var(--lh-body-sm);
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.showPathToggle {
+  background: none; border: none; color: var(--accent-500);
+  font-size: var(--text-caption); cursor: pointer;
+  font-family: var(--font-ui); padding: var(--space-1) 0;
+}
+
+/* Breadcrumb path strip — §10.4, §12.5 */
+.breadcrumbStrip {
+  display: flex; align-items: center; gap: 0;
+  overflow-x: auto; padding: var(--space-2) 0;
+  white-space: nowrap;
+}
+.breadcrumbPill {
+  font-size: var(--text-body-sm); color: var(--neutral-700);
+  background: var(--neutral-100); padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm); display: inline-block;
+}
+.breadcrumbArrow {
+  color: var(--neutral-400); font-size: var(--text-body-sm);
+  padding: 0 var(--space-1);
+}
+.breadcrumbMore {
+  font-size: var(--text-caption); color: var(--neutral-500);
+  margin-left: var(--space-2);
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center; padding: var(--space-8);
+  color: var(--neutral-600);
+}
+.emptyTitle { font-size: var(--text-h3); font-weight: var(--weight-semibold); margin-bottom: var(--space-3); }
+.emptyHints { font-size: var(--text-body-sm); margin-bottom: var(--space-2); }
+.emptyList {
+  list-style: disc; display: inline-block; text-align: left;
+  padding-left: var(--space-5); margin-bottom: var(--space-5);
+  font-size: var(--text-body-sm);
+}
+.refineButton {
+  padding: var(--space-3) var(--space-5); font-size: var(--text-button);
+  font-family: var(--font-ui); background: var(--accent-500);
+  color: var(--neutral-0); border: none; border-radius: var(--radius-md);
+  cursor: pointer; min-height: 44px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--space-2); padding: var(--space-4) 0;
+  font-size: var(--text-body-sm);
+}
+.pagination button {
+  padding: var(--space-1) var(--space-3); border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-sm); background: var(--neutral-0);
+  cursor: pointer; font-family: var(--font-ui); min-height: 44px;
+}
+.pagination button:disabled {
+  color: var(--neutral-400); cursor: default;
+}

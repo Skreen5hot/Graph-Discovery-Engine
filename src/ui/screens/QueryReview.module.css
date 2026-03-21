@@ -1,0 +1,86 @@
+/* Screen 4 — Query Review — §9 */
+
+.container {
+  max-width: 736px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-5);
+}
+
+.backLink {
+  background: none; border: none; color: var(--accent-500);
+  font-size: var(--text-body-sm); cursor: pointer; font-family: var(--font-ui);
+  margin-bottom: var(--space-5); display: inline-block;
+}
+
+.heading {
+  font-family: var(--font-display); font-size: var(--text-h1);
+  margin-bottom: var(--space-5);
+}
+
+.summary {
+  margin-bottom: var(--space-5); color: var(--neutral-700);
+  font-size: var(--text-body); line-height: var(--lh-body);
+}
+
+.clauseList {
+  border: 1px solid var(--neutral-200); border-radius: var(--radius-md);
+  margin-bottom: var(--space-5); overflow: hidden;
+}
+
+.clauseRow {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-4); border-bottom: 1px solid var(--neutral-200);
+}
+.clauseRow:last-child { border-bottom: none; }
+
+.clauseNumber {
+  font-size: var(--text-label); font-weight: var(--weight-semibold);
+  color: var(--neutral-500); min-width: 24px;
+}
+
+.clauseLabel { flex: 1; font-size: var(--text-body); }
+.clauseParam { color: var(--neutral-600); }
+
+.editLink {
+  background: none; border: none; color: var(--accent-500);
+  cursor: pointer; font-size: var(--text-body-sm); font-family: var(--font-ui);
+  min-width: 44px; min-height: 44px;
+}
+
+.outputSection {
+  margin-bottom: var(--space-5);
+}
+.outputSection h3 {
+  font-size: var(--text-h3); margin-bottom: var(--space-2);
+}
+.outputSection ul {
+  list-style: disc; padding-left: var(--space-5);
+  font-size: var(--text-body-sm); color: var(--neutral-700);
+}
+
+.errorBanner {
+  padding: var(--space-3) var(--space-4);
+  background: var(--error-50); border: 1px solid var(--error-500);
+  border-radius: var(--radius-md); color: var(--error-600);
+  margin-bottom: var(--space-5); font-size: var(--text-body-sm);
+}
+
+.actions {
+  display: flex; gap: var(--space-3); justify-content: flex-end;
+}
+
+.submitButton {
+  padding: var(--space-3) var(--space-6); font-size: var(--text-button);
+  font-weight: var(--weight-medium); font-family: var(--font-ui);
+  background: var(--accent-500); color: var(--neutral-0); border: none;
+  border-radius: var(--radius-md); cursor: pointer; min-height: 44px;
+}
+.submitButton:hover:not(:disabled) { background: var(--accent-600); }
+.submitButton:disabled { background: var(--neutral-300); color: var(--neutral-500); }
+
+.editButton {
+  padding: var(--space-3) var(--space-5); font-size: var(--text-button);
+  font-family: var(--font-ui); background: var(--neutral-0);
+  color: var(--neutral-700); border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-md); cursor: pointer; min-height: 44px;
+}
