@@ -319,6 +319,8 @@ Implement structured error objects and the Dynamic Template Engine. The `Transla
 
 **No `types.ts` changes.**
 
+**Spec clarification needed (Phase 2 review):** `SUBCLASS_VIOLATION` has `placement: "inline"` but no `fieldBinding`. RPM §27.8 says inline errors with null fieldBinding are conformance failures. However, SUBCLASS_VIOLATION is a subject-type mismatch (Screen 1 selection vs. mapping domainClasses) — there is no input field to bind to. The inline placement is correct (error should appear near the intent in the panel, not in a banner) but fieldBinding is null by design. §27.8 needs a clarifying exception for subject-type errors. CT-07 should explicitly assert `fieldBinding: undefined` for SUBCLASS_VIOLATION. Implementation is correct — do not change.
+
 ### 1.8 Narrative Synthesis Layer (§34)
 
 **Status:** Not Started | **Priority:** Medium
