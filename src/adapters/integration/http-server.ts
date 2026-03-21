@@ -25,6 +25,7 @@ export interface ParsedRequest {
   params: Record<string, string>;
   query: Record<string, string>;
   body: unknown;
+  rawBody?: Buffer;
   role: "sme" | "curator" | null;
   raw: IncomingMessage;
 }
@@ -63,18 +64,19 @@ function extractPath(url: string): string {
   return queryIndex === -1 ? url : url.substring(0, queryIndex);
 }
 
-/** Read request body as JSON. */
-async function readBody(req: IncomingMessage): Promise<unknown> {
+/** Read request body, return both raw buffer and parsed JSON. */
+async function readBody(req: IncomingMessage): Promise<{ parsed: unknown; rawBuffer: Buffer }> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     req.on("data", (chunk: Buffer) => chunks.push(chunk));
     req.on("end", () => {
-      const raw = Buffer.concat(chunks).toString("utf8");
-      if (raw.length === 0) return resolve(undefined);
+      const rawBuffer = Buffer.concat(chunks);
+      const raw = rawBuffer.toString("utf8");
+      if (raw.length === 0) return resolve({ parsed: undefined, rawBuffer });
       try {
-        resolve(JSON.parse(raw));
+        resolve({ parsed: JSON.parse(raw), rawBuffer });
       } catch {
-        resolve(raw);
+        resolve({ parsed: raw, rawBuffer });
       }
     });
     req.on("error", reject);
@@ -167,12 +169,14 @@ export function createRouter() {
         }
 
         // Parse request
+        const bodyResult = method === "POST" ? await readBody(req) : undefined;
         const parsedReq: ParsedRequest = {
           method,
           path,
           params,
           query: parseQueryString(url),
-          body: method === "POST" ? await readBody(req) : undefined,
+          body: bodyResult?.parsed,
+          rawBody: bodyResult?.rawBuffer,
           role: extractRole(req),
           raw: req,
         };

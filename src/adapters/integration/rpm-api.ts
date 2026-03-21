@@ -19,7 +19,7 @@
  * - GET  /rpm/entity-search         — live entity search
  */
 
-import type { ServerResponse, IncomingMessage } from "node:http";
+import type { ServerResponse } from "node:http";
 import { readFile, writeFile, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -137,16 +137,6 @@ function applyOverrides(
 // ---------------------------------------------------------------------------
 // Multipart Helpers (for graph upload)
 // ---------------------------------------------------------------------------
-
-/** Read the full request body as a Buffer. */
-function readRawBody(req: IncomingMessage): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    req.on("data", (chunk: Buffer) => chunks.push(chunk));
-    req.on("end", () => resolve(Buffer.concat(chunks)));
-    req.on("error", reject);
-  });
-}
 
 /**
  * Extract the file content from a multipart/form-data body.
@@ -506,8 +496,8 @@ export function registerRpmRoutes(state: ServerState) {
   // ----- POST /rpm/upload-graph -----
   router.post("/rpm/upload-graph", async (req, res) => {
     try {
-      // Read raw body
-      const bodyBuf = await readRawBody(req.raw);
+      // Use raw body buffer from the router (already read)
+      const bodyBuf = req.rawBody ?? Buffer.alloc(0);
 
       // Check size limit (5MB)
       if (bodyBuf.length > 5 * 1024 * 1024) {
