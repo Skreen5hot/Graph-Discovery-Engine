@@ -15,6 +15,7 @@
     "demo": "node dist/demo.js",
     "dev:ui": "vite",
     "build:ui": "vite build",
+    "build:demo": "VITE_STATIC_DEMO=true vite build",
     "clean": "rimraf dist dist-tests dist-ui"
   },
   "keywords": [

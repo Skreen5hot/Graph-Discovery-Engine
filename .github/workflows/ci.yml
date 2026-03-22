@@ -115,7 +115,7 @@ jobs:
           cd main-src
           npm ci
           npm run build
-          VITE_BASE_PATH="/Graph-Discovery-Engine/" npm run build:ui
+          VITE_STATIC_DEMO=true VITE_BASE_PATH="/Graph-Discovery-Engine/" npm run build:ui
 
       - name: Prepare main artifact
         run: |
@@ -136,7 +136,7 @@ jobs:
           cd dev-src
           npm ci
           npm run build
-          VITE_BASE_PATH="/Graph-Discovery-Engine/dev/" npm run build:ui
+          VITE_STATIC_DEMO=true VITE_BASE_PATH="/Graph-Discovery-Engine/dev/" npm run build:ui
         continue-on-error: true
 
       - name: Prepare dev artifact

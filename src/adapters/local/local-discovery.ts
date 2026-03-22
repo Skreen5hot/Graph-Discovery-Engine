@@ -94,7 +94,7 @@ const ANNOTATION_PREDICATES = new Set([
 /**
  * Build OntologyClosure from the triple store.
  */
-function buildClosureFromGraph(
+export function buildClosureFromGraph(
   store: LocalTripleStore,
 ): OntologyClosure {
   const classes = new Map<string, OntologyClass>();
