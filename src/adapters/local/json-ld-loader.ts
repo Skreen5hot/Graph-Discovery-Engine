@@ -37,6 +37,22 @@ export interface LocalTripleStore {
 const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 /**
+ * Default prefix map for graphs that use common prefixed terms without @context.
+ * Applied when no @context is provided (e.g., tagteam.jsonld).
+ */
+const DEFAULT_PREFIXES: Record<string, string> = {
+  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#",
+  owl: "http://www.w3.org/2002/07/owl#",
+  xsd: "http://www.w3.org/2001/XMLSchema#",
+  skos: "http://www.w3.org/2004/02/skos/core#",
+  dc: "http://purl.org/dc/elements/1.1/",
+  dcterms: "http://purl.org/dc/terms/",
+  foaf: "http://xmlns.com/foaf/0.1/",
+  schema: "http://schema.org/",
+};
+
+/**
  * Expand a prefixed term or return it as-is if already a full IRI.
  * E.g., "cco:Person" → "http://www.ontologyrepository.com/CommonCoreOntologies/Person"
  */
@@ -229,7 +245,7 @@ export function parseJsonLdDoc(doc: Record<string, unknown> | unknown[]): LocalT
 
   // Handle expanded JSON-LD array (array of nodes with full IRIs, no @context)
   if (Array.isArray(doc)) {
-    const prefixes: Record<string, string> = {};
+    const prefixes: Record<string, string> = { ...DEFAULT_PREFIXES };
     for (const node of doc) {
       if (typeof node === "object" && node !== null) {
         extractNode(node as Record<string, unknown>, prefixes, triples);
@@ -238,8 +254,8 @@ export function parseJsonLdDoc(doc: Record<string, unknown> | unknown[]): LocalT
     return { triples, prefixes };
   }
 
-  // Parse context
-  const prefixes = parseContext(doc["@context"]);
+  // Parse context — merge with defaults for common prefixes
+  const prefixes = { ...DEFAULT_PREFIXES, ...parseContext(doc["@context"]) };
 
   // Parse graph
   const graph = doc["@graph"];
