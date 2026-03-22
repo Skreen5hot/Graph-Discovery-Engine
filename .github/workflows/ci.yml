@@ -2,11 +2,18 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
+  workflow_dispatch:
+
+# One run per branch. New pushes cancel in-progress runs.
+concurrency:
+  group: "ci-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
+  # ─── Job 1: Build and Test ───────────────────────────────────────────
   build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -55,3 +62,95 @@ jobs:
             echo "- **Files**: $PASSED/$TOTAL passed" >> $GITHUB_STEP_SUMMARY
             echo "- **Tests**: $TESTS_PASSED/$TESTS passed" >> $GITHUB_STEP_SUMMARY
           fi
+
+  # ─── Job 2: Dev Push → Trigger Main Deploy ──────────────────────────
+  trigger-dev-deploy:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Trigger deploy via workflow_dispatch on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/ci.yml/dispatches" \
+            -d '{"ref":"main"}'
+
+  # ─── Job 3: Deploy to GitHub Pages ──────────────────────────────────
+  deploy:
+    needs: build-and-test
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # ── Build main site (root) ──
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-src
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'main-src/.nvmrc'
+
+      - name: Build main site
+        run: |
+          cd main-src
+          npm ci
+          npm run build
+          VITE_BASE_PATH="/Graph-Discovery-Engine/" npm run build:ui
+
+      - name: Prepare main artifact
+        run: |
+          mkdir -p _site
+          cp -r main-src/dist-ui/* _site/
+
+      # ── Build dev site (/dev/) ──
+      - name: Checkout dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          path: dev-src
+        continue-on-error: true
+
+      - name: Build dev site
+        id: build-dev
+        run: |
+          cd dev-src
+          npm ci
+          npm run build
+          VITE_BASE_PATH="/Graph-Discovery-Engine/dev/" npm run build:ui
+        continue-on-error: true
+
+      - name: Prepare dev artifact
+        if: steps.build-dev.outcome == 'success'
+        run: |
+          mkdir -p _site/dev
+          cp -r dev-src/dist-ui/* _site/dev/
+
+      # ── Deploy combined site ──
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
