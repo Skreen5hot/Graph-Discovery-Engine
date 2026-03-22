@@ -65,12 +65,12 @@ export function App() {
 
       // Execute the composed query against the triple store
       const executeResult = await postExecute(composed, selectedType!.classIri);
-      const queryResults: Array<{ subjectIri: string; bindings: Record<string, string> }> =
+      const queryResults: Array<{ subjectIri: string; subjectLabel?: string; bindings: Record<string, string> }> =
         executeResult.results ?? [];
 
       // Build result rows from QueryResult[]
       const resultRows = queryResults.map((qr, i) => {
-        const subjectLabel = resolveDisplayLabel(qr.subjectIri, selectedType!.label);
+        const subjectLabel = qr.subjectLabel ?? resolveDisplayLabel(qr.subjectIri, selectedType!.label);
 
         // The executor returns bindings keyed by outputBind.label
         // (e.g., "Date Identifier", "Email Address", "Designative Name").

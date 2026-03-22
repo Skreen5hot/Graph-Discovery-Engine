@@ -18,14 +18,14 @@ import type {
 import type { AssemblyResult } from "../../kernel/registry-assembler.js";
 import type { Tier3Config } from "../../kernel/tier3-discovery.js";
 
-import { loadJsonLdGraph, parseJsonLdDoc, type LocalTripleStore, type Triple } from "./json-ld-loader.js";
+import { loadJsonLdGraph, expandIri, parseJsonLdDoc, type LocalTripleStore, type Triple } from "./json-ld-loader.js";
 import { runQ1, runQ2, runQ3, runQ4, runQ5, runQ6 } from "./local-query-evaluator.js";
 import { generateTier1Mappings } from "../../kernel/tier1-discovery.js";
 import { generateTier2Mappings } from "../../kernel/tier2-discovery.js";
 import { generateTier3Mappings, DEFAULT_TIER3_CONFIG } from "../../kernel/tier3-discovery.js";
 import { assembleRegistry, buildExistingPairs } from "../../kernel/registry-assembler.js";
 import { createOwlTypeResolver } from "../../kernel/type-resolver.js";
-import { resolveLabel } from "../../kernel/labeling.js";
+import { resolveLabel, cleanLocalName } from "../../kernel/labeling.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -279,6 +279,31 @@ export async function runLocalDiscovery(
     Object.assign(store.prefixes, overlayStore.prefixes);
   }
 
+  // 1c. Inject synthetic rdfs:label triples from @context aliases.
+  // Object-valued context entries like "Person": { "@id": "cco:ont00001262" }
+  // define human-readable aliases for opaque IRIs. Inject these as rdfs:label
+  // so the Labeling Law resolves them instead of showing raw local names.
+  const rawCtx = store.rawContext;
+  if (rawCtx) {
+    for (const [alias, value] of Object.entries(rawCtx)) {
+      if (alias.startsWith("@")) continue;
+      if (typeof value === "object" && value !== null && "@id" in (value as Record<string, unknown>)) {
+        const id = (value as Record<string, unknown>)["@id"];
+        if (typeof id === "string") {
+          const expandedIri = expandIri(id, store.prefixes);
+          const label = cleanLocalName(alias);
+          store.triples.push({
+            subject: expandedIri,
+            predicate: "http://www.w3.org/2000/01/rdf-schema#label",
+            object: label,
+            isLiteral: true,
+            language: "en",
+          });
+        }
+      }
+    }
+  }
+
   // 2-3. Build closure and type resolver
   const closure = buildClosureFromGraph(store);
   const typeResolver = createOwlTypeResolver(closure);
@@ -304,7 +329,7 @@ export async function runLocalDiscovery(
       ...DEFAULT_TIER3_CONFIG,
       minInstanceCount: 1,
       promotionThreshold: 0.50,
-      minPathLength: 3,
+      minPathLength: 2,
       ...(options.tier3Config ?? {}),
     };
 

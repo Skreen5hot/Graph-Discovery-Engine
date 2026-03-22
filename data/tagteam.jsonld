@@ -1,0 +1,944 @@
+{
+  "@context": {
+    "bfo": "http://purl.obolibrary.org/obo/",
+    "cco": "https://www.commoncoreontologies.org/",
+    "tagteam": "http://tagteam.fandaws.org/ontology/",
+    "inst": "http://tagteam.fandaws.org/instance/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "Entity": {
+      "@id": "bfo:BFO_0000001"
+    },
+    "Continuant": {
+      "@id": "bfo:BFO_0000002"
+    },
+    "IndependentContinuant": {
+      "@id": "bfo:BFO_0000004"
+    },
+    "TemporalRegion": {
+      "@id": "bfo:BFO_0000008"
+    },
+    "Process": {
+      "@id": "bfo:BFO_0000015"
+    },
+    "Disposition": {
+      "@id": "bfo:BFO_0000016"
+    },
+    "Quality": {
+      "@id": "bfo:BFO_0000019"
+    },
+    "Role": {
+      "@id": "bfo:BFO_0000023"
+    },
+    "ObjectAggregate": {
+      "@id": "bfo:BFO_0000027"
+    },
+    "Site": {
+      "@id": "bfo:BFO_0000029"
+    },
+    "Object": {
+      "@id": "bfo:BFO_0000030"
+    },
+    "GenericallyDependentContinuant": {
+      "@id": "bfo:BFO_0000031"
+    },
+    "OneDimensionalTemporalRegion": {
+      "@id": "bfo:BFO_0000038"
+    },
+    "MaterialEntity": {
+      "@id": "bfo:BFO_0000040"
+    },
+    "RelationalQuality": {
+      "@id": "bfo:BFO_0000145"
+    },
+    "Act": {
+      "@id": "cco:ont00000005"
+    },
+    "ActOfCommunication": {
+      "@id": "cco:ont00000402"
+    },
+    "Agent": {
+      "@id": "cco:ont00001017"
+    },
+    "Artifact": {
+      "@id": "cco:ont00000995"
+    },
+    "Country": {
+      "@id": "cco:ont00000139"
+    },
+    "Facility": {
+      "@id": "cco:ont00000192"
+    },
+    "GeopoliticalOrganization": {
+      "@id": "cco:ont00000176"
+    },
+    "InformationBearingEntity": {
+      "@id": "cco:ont00000253"
+    },
+    "InformationContentEntity": {
+      "@id": "cco:ont00000958"
+    },
+    "IntentionalAct": {
+      "@id": "cco:ont00000228"
+    },
+    "Organization": {
+      "@id": "cco:ont00001180"
+    },
+    "Person": {
+      "@id": "cco:ont00001262"
+    },
+    "DiscourseReferent": {
+      "@id": "tagteam:DiscourseReferent"
+    },
+    "VerbPhrase": {
+      "@id": "tagteam:VerbPhrase"
+    },
+    "ActualityStatus": {
+      "@id": "tagteam:ActualityStatus"
+    },
+    "Actual": {
+      "@id": "tagteam:Actual"
+    },
+    "Prescribed": {
+      "@id": "tagteam:Prescribed"
+    },
+    "Permitted": {
+      "@id": "tagteam:Permitted"
+    },
+    "Prohibited": {
+      "@id": "tagteam:Prohibited"
+    },
+    "Hypothetical": {
+      "@id": "tagteam:Hypothetical"
+    },
+    "Planned": {
+      "@id": "tagteam:Planned"
+    },
+    "Negated": {
+      "@id": "tagteam:Negated"
+    },
+    "Entitled": {
+      "@id": "tagteam:Entitled"
+    },
+    "Empowered": {
+      "@id": "tagteam:Empowered"
+    },
+    "Protected": {
+      "@id": "tagteam:Protected"
+    },
+    "DirectiveContent": {
+      "@id": "tagteam:DirectiveContent"
+    },
+    "ScarcityAssertion": {
+      "@id": "tagteam:ScarcityAssertion"
+    },
+    "InterpretationContext": {
+      "@id": "tagteam:InterpretationContext"
+    },
+    "AutomatedDetection": {
+      "@id": "tagteam:AutomatedDetection"
+    },
+    "HumanValidation": {
+      "@id": "tagteam:HumanValidation"
+    },
+    "HumanRejection": {
+      "@id": "tagteam:HumanRejection"
+    },
+    "HumanCorrection": {
+      "@id": "tagteam:HumanCorrection"
+    },
+    "SpeechAct": {
+      "@id": "tagteam:SpeechAct"
+    },
+    "Inquiry": {
+      "@id": "tagteam:Inquiry"
+    },
+    "ConditionalContent": {
+      "@id": "tagteam:ConditionalContent"
+    },
+    "ClauseRelation": {
+      "@id": "tagteam:ClauseRelation"
+    },
+    "CausativeAct": {
+      "@id": "tagteam:CausativeAct"
+    },
+    "Interrogative": {
+      "@id": "tagteam:Interrogative"
+    },
+    "and_then": {
+      "@id": "tagteam:and_then"
+    },
+    "therefore": {
+      "@id": "tagteam:therefore"
+    },
+    "in_order_that": {
+      "@id": "tagteam:in_order_that"
+    },
+    "contrasts_with": {
+      "@id": "tagteam:contrasts_with"
+    },
+    "alternative_to": {
+      "@id": "tagteam:alternative_to"
+    },
+    "precedes": {
+      "@id": "tagteam:precedes"
+    },
+    "follows": {
+      "@id": "tagteam:follows"
+    },
+    "simultaneous_with": {
+      "@id": "tagteam:simultaneous_with"
+    },
+    "is_concretized_by": {
+      "@id": "bfo:BFO_0000058",
+      "@type": "@id"
+    },
+    "concretizes": {
+      "@id": "bfo:BFO_0000059",
+      "@type": "@id"
+    },
+    "inheres_in": {
+      "@id": "bfo:BFO_0000197",
+      "@type": "@id"
+    },
+    "is_bearer_of": {
+      "@id": "bfo:BFO_0000196",
+      "@type": "@id"
+    },
+    "realized_in": {
+      "@id": "bfo:BFO_0000054",
+      "@type": "@id"
+    },
+    "realizes": {
+      "@id": "bfo:BFO_0000055",
+      "@type": "@id"
+    },
+    "has_participant": {
+      "@id": "bfo:BFO_0000057",
+      "@type": "@id"
+    },
+    "participates_in": {
+      "@id": "bfo:BFO_0000056",
+      "@type": "@id"
+    },
+    "has_member_part": {
+      "@id": "bfo:BFO_0000115",
+      "@type": "@id"
+    },
+    "member_part_of": {
+      "@id": "bfo:BFO_0000129",
+      "@type": "@id"
+    },
+    "has_continuant_part": {
+      "@id": "bfo:BFO_0000178",
+      "@type": "@id"
+    },
+    "continuant_part_of": {
+      "@id": "bfo:BFO_0000176",
+      "@type": "@id"
+    },
+    "is_part_of": {
+      "@id": "bfo:BFO_0000176",
+      "@type": "@id"
+    },
+    "located_in": {
+      "@id": "bfo:BFO_0000171",
+      "@type": "@id"
+    },
+    "occupies_temporal_region": {
+      "@id": "bfo:BFO_0000199",
+      "@type": "@id"
+    },
+    "is_about": {
+      "@id": "cco:ont00001808",
+      "@type": "@id"
+    },
+    "is_subject_of": {
+      "@id": "cco:ont00001801",
+      "@type": "@id"
+    },
+    "prescribes": {
+      "@id": "cco:ont00001942",
+      "@type": "@id"
+    },
+    "prescribed_by": {
+      "@id": "cco:ont00001920",
+      "@type": "@id"
+    },
+    "has_agent": {
+      "@id": "cco:ont00001833",
+      "@type": "@id"
+    },
+    "has_recipient": {
+      "@id": "cco:ont00001922",
+      "@type": "@id"
+    },
+    "has_input": {
+      "@id": "cco:ont00001921",
+      "@type": "@id"
+    },
+    "has_output": {
+      "@id": "cco:ont00001986",
+      "@type": "@id"
+    },
+    "is_input_of": {
+      "@id": "cco:ont00001841",
+      "@type": "@id"
+    },
+    "is_output_of": {
+      "@id": "cco:ont00001816",
+      "@type": "@id"
+    },
+    "affects": {
+      "@id": "cco:ont00001834",
+      "@type": "@id"
+    },
+    "designates": {
+      "@id": "cco:ont00001916",
+      "@type": "@id"
+    },
+    "is_designated_by": {
+      "@id": "cco:ont00001879",
+      "@type": "@id"
+    },
+    "is_measured_by": {
+      "@id": "cco:ont00001904",
+      "@type": "@id"
+    },
+    "measures": {
+      "@id": "cco:ont00001966",
+      "@type": "@id"
+    },
+    "uses_measurement_unit": {
+      "@id": "cco:ont00001863",
+      "@type": "@id"
+    },
+    "has_component": {
+      "@id": "tagteam:has_component",
+      "@type": "@id"
+    },
+    "extracted_from": {
+      "@id": "tagteam:extracted_from",
+      "@type": "@id"
+    },
+    "corefersWith": {
+      "@id": "tagteam:corefersWith",
+      "@type": "@id"
+    },
+    "describes_quality": {
+      "@id": "tagteam:describes_quality",
+      "@type": "@id"
+    },
+    "would_be_realized_in": {
+      "@id": "tagteam:would_be_realized_in",
+      "@type": "@id"
+    },
+    "has_possession": {
+      "@id": "tagteam:has_possession",
+      "@type": "@id"
+    },
+    "has_function": {
+      "@id": "tagteam:has_function",
+      "@type": "@id"
+    },
+    "has_spatial_extent": {
+      "@id": "tagteam:has_spatial_extent",
+      "@type": "@id"
+    },
+    "bears_role_for": {
+      "@id": "tagteam:bears_role_for",
+      "@type": "@id"
+    },
+    "occurs_during": {
+      "@id": "tagteam:occurs_during",
+      "@type": "@id"
+    },
+    "has_measurement_value": {
+      "@id": "tagteam:has_measurement_value",
+      "@type": "@id"
+    },
+    "has_start_time": {
+      "@id": "tagteam:has_start_time",
+      "@type": "xsd:dateTime"
+    },
+    "has_end_time": {
+      "@id": "tagteam:has_end_time",
+      "@type": "xsd:dateTime"
+    },
+    "assertionType": {
+      "@id": "tagteam:assertionType",
+      "@type": "@id"
+    },
+    "validInContext": {
+      "@id": "tagteam:validInContext",
+      "@type": "@id"
+    },
+    "actualityStatus": {
+      "@id": "tagteam:actualityStatus",
+      "@type": "@id"
+    },
+    "validatedBy": {
+      "@id": "tagteam:validatedBy",
+      "@type": "@id"
+    },
+    "supersedes": {
+      "@id": "tagteam:supersedes",
+      "@type": "@id"
+    },
+    "scarceResource": {
+      "@id": "tagteam:scarceResource",
+      "@type": "@id"
+    },
+    "asserts": {
+      "@id": "tagteam:asserts",
+      "@type": "@id"
+    },
+    "detected_by": {
+      "@id": "tagteam:detected_by",
+      "@type": "@id"
+    },
+    "based_on": {
+      "@id": "tagteam:based_on",
+      "@type": "@id"
+    },
+    "instantiated_by": {
+      "@id": "tagteam:instantiated_by",
+      "@type": "@id"
+    },
+    "denotesType": {
+      "@id": "tagteam:denotesType"
+    },
+    "assertionSubject": {
+      "@id": "tagteam:assertionSubject",
+      "@type": "@id"
+    },
+    "assertionObject": {
+      "@id": "tagteam:assertionObject",
+      "@type": "@id"
+    },
+    "assertedRelation": {
+      "@id": "tagteam:assertedRelation",
+      "@type": "@id"
+    },
+    "owl:NegativePropertyAssertion": {
+      "@id": "owl:NegativePropertyAssertion"
+    },
+    "owl:sourceIndividual": {
+      "@id": "owl:sourceIndividual",
+      "@type": "@id"
+    },
+    "owl:assertionProperty": {
+      "@id": "owl:assertionProperty",
+      "@type": "@id"
+    },
+    "owl:targetIndividual": {
+      "@id": "owl:targetIndividual",
+      "@type": "@id"
+    },
+    "competingParties": {
+      "@id": "tagteam:competingParties",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "relationType": {
+      "@id": "tagteam:relationType",
+      "@type": "@id"
+    },
+    "fromClause": {
+      "@id": "tagteam:fromClause",
+      "@type": "@id"
+    },
+    "toClause": {
+      "@id": "tagteam:toClause",
+      "@type": "@id"
+    },
+    "has_antecedent": {
+      "@id": "tagteam:has_antecedent",
+      "@type": "@id"
+    },
+    "has_consequent": {
+      "@id": "tagteam:has_consequent",
+      "@type": "@id"
+    },
+    "has_cause": {
+      "@id": "tagteam:has_cause",
+      "@type": "@id"
+    },
+    "has_text_value": {
+      "@id": "cco:ont00001765",
+      "@type": "xsd:string"
+    },
+    "instantiated_at": {
+      "@id": "tagteam:instantiated_at",
+      "@type": "xsd:dateTime"
+    },
+    "validationTimestamp": {
+      "@id": "tagteam:validationTimestamp",
+      "@type": "xsd:dateTime"
+    },
+    "detected_at": {
+      "@id": "tagteam:detected_at",
+      "@type": "xsd:dateTime"
+    },
+    "received_at": {
+      "@id": "tagteam:received_at",
+      "@type": "xsd:dateTime"
+    },
+    "temporal_extent": {
+      "@id": "tagteam:temporal_extent",
+      "@type": "xsd:dateTime"
+    },
+    "extractionConfidence": {
+      "@id": "tagteam:extractionConfidence",
+      "@type": "xsd:decimal"
+    },
+    "classificationConfidence": {
+      "@id": "tagteam:classificationConfidence",
+      "@type": "xsd:decimal"
+    },
+    "relevanceConfidence": {
+      "@id": "tagteam:relevanceConfidence",
+      "@type": "xsd:decimal"
+    },
+    "aggregateConfidence": {
+      "@id": "tagteam:aggregateConfidence",
+      "@type": "xsd:decimal"
+    },
+    "modalStrength": {
+      "@id": "tagteam:modalStrength",
+      "@type": "xsd:decimal"
+    },
+    "scarcityRatio": {
+      "@id": "tagteam:scarcityRatio",
+      "@type": "xsd:decimal"
+    },
+    "salience": {
+      "@id": "tagteam:salience",
+      "@type": "xsd:decimal"
+    },
+    "score": {
+      "@id": "tagteam:score",
+      "@type": "xsd:decimal"
+    },
+    "supplyCount": {
+      "@id": "tagteam:supplyCount",
+      "@type": "xsd:integer"
+    },
+    "demandCount": {
+      "@id": "tagteam:demandCount",
+      "@type": "xsd:integer"
+    },
+    "member_count": {
+      "@id": "tagteam:member_count",
+      "@type": "xsd:integer"
+    },
+    "member_index": {
+      "@id": "tagteam:member_index",
+      "@type": "xsd:integer"
+    },
+    "startPosition": {
+      "@id": "tagteam:startPosition",
+      "@type": "xsd:integer"
+    },
+    "endPosition": {
+      "@id": "tagteam:endPosition",
+      "@type": "xsd:integer"
+    },
+    "quantity": {
+      "@id": "tagteam:quantity",
+      "@type": "xsd:integer"
+    },
+    "char_count": {
+      "@id": "tagteam:char_count",
+      "@type": "xsd:integer"
+    },
+    "word_count": {
+      "@id": "tagteam:word_count",
+      "@type": "xsd:integer"
+    },
+    "polarity": {
+      "@id": "tagteam:polarity",
+      "@type": "xsd:integer"
+    },
+    "clauseIndex": {
+      "@id": "tagteam:clauseIndex",
+      "@type": "xsd:integer"
+    },
+    "isQuestionFocus": {
+      "@id": "tagteam:isQuestionFocus",
+      "@type": "xsd:boolean"
+    },
+    "subjectSource": {
+      "@id": "tagteam:subjectSource"
+    },
+    "whPhrase": {
+      "@id": "tagteam:whPhrase"
+    },
+    "verbClass": {
+      "@id": "tagteam:verbClass"
+    },
+    "epistemicStatus": {
+      "@id": "tagteam:epistemicStatus"
+    },
+    "framework": {
+      "@id": "tagteam:framework"
+    },
+    "negationMarker": {
+      "@id": "tagteam:negationMarker"
+    },
+    "aggregationMethod": {
+      "@id": "tagteam:aggregationMethod"
+    },
+    "modalType": {
+      "@id": "tagteam:modalType"
+    },
+    "modalMarker": {
+      "@id": "tagteam:modalMarker"
+    },
+    "scarcityMarker": {
+      "@id": "tagteam:scarcityMarker"
+    },
+    "evidenceText": {
+      "@id": "tagteam:evidenceText"
+    },
+    "classificationLabel": {
+      "@id": "tagteam:classificationLabel"
+    },
+    "classificationBasis": {
+      "@id": "tagteam:classificationBasis"
+    },
+    "qualifierText": {
+      "@id": "tagteam:qualifierText"
+    },
+    "severity": {
+      "@id": "tagteam:severity"
+    },
+    "ageCategory": {
+      "@id": "tagteam:ageCategory"
+    },
+    "sourceText": {
+      "@id": "tagteam:sourceText"
+    },
+    "definiteness": {
+      "@id": "tagteam:definiteness"
+    },
+    "quantityIndicator": {
+      "@id": "tagteam:quantityIndicator"
+    },
+    "qualifiers": {
+      "@id": "tagteam:qualifiers"
+    },
+    "verb": {
+      "@id": "tagteam:verb"
+    },
+    "lemma": {
+      "@id": "tagteam:lemma"
+    },
+    "tense": {
+      "@id": "tagteam:tense"
+    },
+    "hasModalMarker": {
+      "@id": "tagteam:hasModalMarker"
+    },
+    "version": {
+      "@id": "tagteam:version"
+    },
+    "algorithm": {
+      "@id": "tagteam:algorithm"
+    },
+    "capabilities": {
+      "@id": "tagteam:capabilities"
+    },
+    "valueName": {
+      "@id": "tagteam:valueName"
+    },
+    "valueCategory": {
+      "@id": "tagteam:valueCategory"
+    },
+    "evidence": {
+      "@id": "tagteam:evidence"
+    },
+    "sourceSpan": {
+      "@id": "tagteam:sourceSpan"
+    },
+    "category": {
+      "@id": "tagteam:category"
+    },
+    "matched_markers": {
+      "@id": "tagteam:matched_markers"
+    },
+    "detection_method": {
+      "@id": "tagteam:detection_method"
+    },
+    "dimension": {
+      "@id": "tagteam:dimension"
+    },
+    "structuralAmbiguity": {
+      "@id": "tagteam:structuralAmbiguity"
+    },
+    "ontologyMatch": {
+      "@id": "tagteam:ontologyMatch",
+      "@container": "@set"
+    },
+    "ontologyMatchClass": {
+      "@id": "tagteam:ontologyMatchClass",
+      "@type": "@id"
+    },
+    "ontologyMatchConfidence": {
+      "@id": "tagteam:ontologyMatchConfidence",
+      "@type": "xsd:decimal"
+    },
+    "ontologyMatchEvidence": {
+      "@id": "tagteam:ontologyMatchEvidence"
+    },
+    "ontologyMatchLabel": {
+      "@id": "tagteam:ontologyMatchLabel"
+    },
+    "ontologyMatchType": {
+      "@id": "tagteam:ontologyMatchType"
+    },
+    "ontologyMatchForm": {
+      "@id": "tagteam:ontologyMatchForm"
+    },
+    "ontologyMatchInflection": {
+      "@id": "tagteam:ontologyMatchInflection"
+    }
+  },
+  "@graph": [
+    {
+      "@id": "inst:The_doctor",
+      "@type": [
+        "tagteam:DiscourseReferent"
+      ],
+      "rdfs:label": "The doctor",
+      "tagteam:mentionId": "s0:h2:0-10",
+      "tagteam:parseConfidence": "high",
+      "tagteam:parseProbability": 0.9272,
+      "tagteam:genericityCategory": "INST",
+      "tagteam:genericityConfidence": 0.9,
+      "tagteam:denotesType": "Person",
+      "is_about": {
+        "@id": "inst:Person_Doctor_af188af80b7c"
+      },
+      "is_concretized_by": {
+        "@id": "inst:Input_Text_IBE_48af16797473"
+      }
+    },
+    {
+      "@id": "inst:the_last_ventilator",
+      "@type": [
+        "tagteam:DiscourseReferent"
+      ],
+      "rdfs:label": "the last ventilator",
+      "tagteam:mentionId": "s0:h7:25-44",
+      "tagteam:parseConfidence": "medium",
+      "tagteam:parseProbability": 0.8492,
+      "tagteam:denotesType": "Artifact",
+      "is_about": {
+        "@id": "inst:Artifact_Last_Ventilator_76b664e0b6b2"
+      },
+      "is_concretized_by": {
+        "@id": "inst:Input_Text_IBE_48af16797473"
+      }
+    },
+    {
+      "@id": "inst:two_critically_ill_patients",
+      "@type": [
+        "tagteam:DiscourseReferent"
+      ],
+      "rdfs:label": "two critically ill patients",
+      "tagteam:mentionId": "s0:h12:53-80",
+      "tagteam:parseConfidence": "medium",
+      "tagteam:parseProbability": 0.889,
+      "tagteam:denotesType": "Entity",
+      "is_about": {
+        "@id": "inst:Entity_Two_Critically_Ill_Patient_6c93e7f3bc7a"
+      },
+      "is_concretized_by": {
+        "@id": "inst:Input_Text_IBE_48af16797473"
+      }
+    },
+    {
+      "@id": "inst:Act_allocate",
+      "@type": [
+        "IntentionalAct",
+        "tagteam:VerbPhrase"
+      ],
+      "rdfs:label": "allocate",
+      "tagteam:lemma": "allocate",
+      "is_concretized_by": {
+        "@id": "inst:Input_Text_IBE_48af16797473"
+      }
+    },
+    {
+      "@id": "inst:Role_The_doctor_AgentRole",
+      "@type": [
+        "Role"
+      ],
+      "rdfs:label": "AgentRole",
+      "tagteam:roleType": "AgentRole",
+      "inheres_in": {
+        "@id": "inst:Person_Doctor_af188af80b7c"
+      },
+      "realized_in": {
+        "@id": "inst:Act_allocate"
+      },
+      "tagteam:parseConfidence": "high",
+      "tagteam:parseProbability": 0.9272
+    },
+    {
+      "@id": "inst:Role_the_last_ventilator_PatientRole",
+      "@type": [
+        "Role"
+      ],
+      "rdfs:label": "PatientRole",
+      "tagteam:roleType": "PatientRole",
+      "inheres_in": {
+        "@id": "inst:Artifact_Last_Ventilator_76b664e0b6b2"
+      },
+      "realized_in": {
+        "@id": "inst:Act_allocate"
+      },
+      "tagteam:parseConfidence": "medium",
+      "tagteam:parseProbability": 0.8492
+    },
+    {
+      "@id": "inst:Role_two_critically_ill_patients_ObliqueRole",
+      "@type": [
+        "Role"
+      ],
+      "rdfs:label": "ObliqueRole",
+      "tagteam:roleType": "ObliqueRole",
+      "inheres_in": {
+        "@id": "inst:Entity_Two_Critically_Ill_Patient_6c93e7f3bc7a"
+      },
+      "realized_in": {
+        "@id": "inst:Act_allocate"
+      },
+      "tagteam:preposition": "between",
+      "tagteam:parseConfidence": "medium",
+      "tagteam:parseProbability": 0.889
+    },
+    {
+      "@id": "inst:Person_Doctor_af188af80b7c",
+      "@type": [
+        "Person",
+        "owl:NamedIndividual"
+      ],
+      "rdfs:label": "doctor",
+      "tagteam:genericityCategory": "INST",
+      "tagteam:typeBasis": "type-mapping",
+      "tagteam:instantiated_at": "2026-03-22T10:19:31.480Z",
+      "tagteam:instantiated_by": "inst:Input_Text_IBE_48af16797473",
+      "is_subject_of": {
+        "@id": "inst:The_doctor"
+      },
+      "is_bearer_of": [
+        {
+          "@id": "inst:Role_The_doctor_AgentRole"
+        }
+      ]
+    },
+    {
+      "@id": "inst:Artifact_Last_Ventilator_76b664e0b6b2",
+      "@type": [
+        "Artifact",
+        "owl:NamedIndividual"
+      ],
+      "rdfs:label": "last ventilator",
+      "tagteam:typeBasis": "type-mapping",
+      "tagteam:instantiated_at": "2026-03-22T10:19:31.481Z",
+      "tagteam:instantiated_by": "inst:Input_Text_IBE_48af16797473",
+      "is_subject_of": {
+        "@id": "inst:the_last_ventilator"
+      },
+      "is_bearer_of": [
+        {
+          "@id": "inst:Role_the_last_ventilator_PatientRole"
+        }
+      ]
+    },
+    {
+      "@id": "inst:Entity_Two_Critically_Ill_Patient_6c93e7f3bc7a",
+      "@type": [
+        "Entity",
+        "owl:NamedIndividual"
+      ],
+      "rdfs:label": "two critically ill patient",
+      "tagteam:typeBasis": "type-mapping",
+      "tagteam:instantiated_at": "2026-03-22T10:19:31.481Z",
+      "tagteam:instantiated_by": "inst:Input_Text_IBE_48af16797473",
+      "is_subject_of": {
+        "@id": "inst:two_critically_ill_patients"
+      },
+      "is_bearer_of": [
+        {
+          "@id": "inst:Role_two_critically_ill_patients_ObliqueRole"
+        }
+      ]
+    },
+    {
+      "@id": "inst:Input_Text_IBE_48af16797473",
+      "@type": [
+        "InformationBearingEntity",
+        "owl:NamedIndividual"
+      ],
+      "rdfs:label": "Input text",
+      "has_text_value": "The doctor must allocate the last ventilator between two critically ill patients",
+      "tagteam:char_count": 80,
+      "tagteam:word_count": 12,
+      "tagteam:received_at": "2026-03-22T10:19:31.375Z"
+    },
+    {
+      "@id": "inst:TagTeam_Parser_v3_0_0",
+      "@type": [
+        "Agent",
+        "owl:NamedIndividual"
+      ],
+      "rdfs:label": "TagTeam.js Parser v3.0.0",
+      "tagteam:version": "3.0.0",
+      "tagteam:algorithm": "BFO-aware NLP with CCO mapping",
+      "tagteam:capabilities": [
+        "entity_extraction",
+        "act_extraction",
+        "role_detection",
+        "value_detection",
+        "context_analysis"
+      ]
+    },
+    {
+      "@id": "inst:ParsingAct_48af1679",
+      "@type": [
+        "IntentionalAct",
+        "owl:NamedIndividual"
+      ],
+      "rdfs:label": "Semantic parsing act",
+      "tagteam:actualityStatus": {
+        "@id": "tagteam:Actual"
+      },
+      "has_input": {
+        "@id": "inst:Input_Text_IBE_48af16797473"
+      },
+      "has_agent": {
+        "@id": "inst:TagTeam_Parser_v3_0_0"
+      },
+      "has_output": [
+        {
+          "@id": "inst:The_doctor"
+        },
+        {
+          "@id": "inst:the_last_ventilator"
+        },
+        {
+          "@id": "inst:two_critically_ill_patients"
+        },
+        {
+          "@id": "inst:Act_allocate"
+        }
+      ],
+      "tagteam:instantiated_at": "2026-03-22T10:19:31.375Z"
+    }
+  ]
+}

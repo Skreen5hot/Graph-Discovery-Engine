@@ -2,67 +2,471 @@
   "@context": {
     "cco": "http://www.ontologyrepository.com/CommonCoreOntologies/",
     "obo": "http://purl.obolibrary.org/obo/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "ex": "http://example.org/data/",
     "val": "cco:has_value"
   },
   "@graph": [
+
     {
-      "@id": "ex:Person_JaneDoe_001",
-      "@type": "cco:Person",
-      "cco:designated_by": [
-        { "@id": "ex:Name_Jane_001", "@type": "cco:PersonGivenName", "val": "Jane" },
-        { "@id": "ex:Name_Doe_001", "@type": "cco:PersonFamilyName", "val": "Doe" }
-      ],
-      "cco:is_object_of": {
-        "@id": "ex:Birth_Jane_001",
-        "@type": "cco:Birth",
-        "cco:occurs_on": {
-          "@id": "ex:Day_19991231",
-          "@type": "cco:Day",
-          "cco:designated_by": { "@type": "cco:DateIdentifier", "val": "1999-12-31" }
-        }
+      "rdfs:comment": "=== ORGANIZATION ===",
+      "@id": "ex:Org_TechGiant",
+      "@type": ["cco:Organization", "owl:NamedIndividual"],
+      "rdfs:label": "Tech Giant",
+      "cco:designated_by": {
+        "@type": "cco:DesignativeName",
+        "val": "Tech Giant"
+      }
+    },
+
+    {
+      "rdfs:comment": "=== PROJECTS ===",
+      "@id": "ex:Project_Alpha",
+      "@type": ["cco:ActOfResearch", "owl:NamedIndividual"],
+      "rdfs:label": "Project Alpha",
+      "cco:designated_by": {
+        "@type": "cco:DesignativeName",
+        "val": "Project Alpha"
       },
+      "cco:is_measured_by": {
+        "@id": "ex:Budget_Alpha",
+        "@type": ["cco:CurrencyEntity", "owl:NamedIndividual"],
+        "rdfs:label": "Project Alpha Budget",
+        "val": "500000",
+        "cco:has_unit_of_measure": {
+          "@type": "cco:MeasurementUnitIdentifier",
+          "val": "USD"
+        }
+      }
+    },
+
+    {
+      "@id": "ex:Project_Beta",
+      "@type": ["cco:ActOfResearch", "owl:NamedIndividual"],
+      "rdfs:label": "Project Beta",
+      "cco:designated_by": {
+        "@type": "cco:DesignativeName",
+        "val": "Project Beta (Cybersecurity Audit)"
+      },
+      "cco:is_measured_by": {
+        "@id": "ex:Budget_Beta",
+        "@type": ["cco:CurrencyEntity", "owl:NamedIndividual"],
+        "rdfs:label": "Project Beta Budget",
+        "val": "250000",
+        "cco:has_unit_of_measure": {
+          "@type": "cco:MeasurementUnitIdentifier",
+          "val": "USD"
+        }
+      }
+    },
+
+    {
+      "rdfs:comment": "=== LOCATIONS ===",
+      "@id": "ex:Region_Springfield",
+      "@type": ["cco:LocalAdministrativeRegion", "owl:NamedIndividual"],
+      "rdfs:label": "Springfield",
+      "cco:designated_by": {
+        "@type": "cco:DesignativeName",
+        "val": "Springfield"
+      }
+    },
+
+    {
+      "@id": "ex:Facility_Springfield_Office",
+      "@type": ["cco:Facility", "owl:NamedIndividual"],
+      "rdfs:label": "Springfield Regional Office",
+      "cco:designated_by": {
+        "@type": "cco:StreetAddress",
+        "val": "100 Main St"
+      },
+      "obo:RO_0001025": { "@id": "ex:Region_Springfield" }
+    },
+
+    {
+      "@id": "ex:Facility_Home_Jane",
+      "@type": ["cco:ResidentialFacility", "owl:NamedIndividual"],
+      "rdfs:label": "Jane's Residence",
+      "cco:designated_by": {
+        "@type": "cco:StreetAddress",
+        "val": "1234 Walnut St"
+      },
+      "obo:RO_0001025": { "@id": "ex:Region_Springfield" }
+    },
+
+    {
+      "rdfs:comment": "=== RESIDENCE ACTS ===",
+      "@id": "ex:Residing_Jane_001",
+      "@type": ["cco:ActOfResiding", "owl:NamedIndividual"],
+      "rdfs:label": "Jane Doe Residence",
+      "cco:has_agent": { "@id": "ex:Person_JaneDoe_001" },
+      "obo:RO_0000057": { "@id": "ex:Facility_Home_Jane" }
+    },
+
+    {
+      "@id": "ex:Residing_Springfield_Shared",
+      "@type": ["cco:ActOfResiding", "owl:NamedIndividual"],
+      "rdfs:label": "Springfield Staff Residence",
+      "obo:RO_0000057": { "@id": "ex:Facility_Springfield_Office" }
+    },
+
+    {
+      "rdfs:comment": "=== EMAIL ADDRESSES as named individuals ===",
+      "@id": "ex:Email_Jane",
+      "@type": ["cco:EmailAddress", "owl:NamedIndividual"],
+      "rdfs:label": "janedoe@techgiant.com",
+      "val": "janedoe@techgiant.com"
+    },
+
+    {
+      "@id": "ex:Email_John",
+      "@type": ["cco:EmailAddress", "owl:NamedIndividual"],
+      "rdfs:label": "jsmith@techgiant.com",
+      "val": "jsmith@techgiant.com"
+    },
+
+    {
+      "@id": "ex:Email_Alice",
+      "@type": ["cco:EmailAddress", "owl:NamedIndividual"],
+      "rdfs:label": "achen@techgiant.com",
+      "val": "achen@techgiant.com"
+    },
+
+    {
+      "@id": "ex:Email_Ripley",
+      "@type": ["cco:EmailAddress", "owl:NamedIndividual"],
+      "rdfs:label": "eripley@techgiant.com",
+      "val": "eripley@techgiant.com"
+    },
+
+    {
+      "@id": "ex:Email_Hicks",
+      "@type": ["cco:EmailAddress", "owl:NamedIndividual"],
+      "rdfs:label": "dhicks@techgiant.com",
+      "val": "dhicks@techgiant.com"
+    },
+
+    {
+      "@id": "ex:Email_Sarah",
+      "@type": ["cco:EmailAddress", "owl:NamedIndividual"],
+      "rdfs:label": "sconnor@techgiant.com",
+      "val": "sconnor@techgiant.com"
+    },
+
+    {
+      "@id": "ex:Email_James",
+      "@type": ["cco:EmailAddress", "owl:NamedIndividual"],
+      "rdfs:label": "jholden@techgiant.com",
+      "val": "jholden@techgiant.com"
+    },
+
+    {
+      "@id": "ex:Email_Naomi",
+      "@type": ["cco:EmailAddress", "owl:NamedIndividual"],
+      "rdfs:label": "nnagata@techgiant.com",
+      "val": "nnagata@techgiant.com"
+    },
+
+    {
+      "rdfs:comment": "=== EMAIL BOXES as named individuals — link to named EmailAddress ===",
+      "@id": "ex:EmailBox_Jane_001",
+      "@type": ["cco:EmailBox", "owl:NamedIndividual"],
+      "rdfs:label": "Jane Doe Email Box",
+      "cco:designated_by": { "@id": "ex:Email_Jane" }
+    },
+
+    {
+      "@id": "ex:EmailBox_John_002",
+      "@type": ["cco:EmailBox", "owl:NamedIndividual"],
+      "rdfs:label": "John Smith Email Box",
+      "cco:designated_by": { "@id": "ex:Email_John" }
+    },
+
+    {
+      "@id": "ex:EmailBox_Alice_003",
+      "@type": ["cco:EmailBox", "owl:NamedIndividual"],
+      "rdfs:label": "Alice Chen Email Box",
+      "cco:designated_by": { "@id": "ex:Email_Alice" }
+    },
+
+    {
+      "@id": "ex:EmailBox_Ripley_004",
+      "@type": ["cco:EmailBox", "owl:NamedIndividual"],
+      "rdfs:label": "Ellen Ripley Email Box",
+      "cco:designated_by": { "@id": "ex:Email_Ripley" }
+    },
+
+    {
+      "@id": "ex:EmailBox_Hicks_005",
+      "@type": ["cco:EmailBox", "owl:NamedIndividual"],
+      "rdfs:label": "Dwayne Hicks Email Box",
+      "cco:designated_by": { "@id": "ex:Email_Hicks" }
+    },
+
+    {
+      "@id": "ex:EmailBox_Staff_001",
+      "@type": ["cco:EmailBox", "owl:NamedIndividual"],
+      "rdfs:label": "Sarah Connor Email Box",
+      "cco:designated_by": { "@id": "ex:Email_Sarah" }
+    },
+
+    {
+      "@id": "ex:EmailBox_Staff_002",
+      "@type": ["cco:EmailBox", "owl:NamedIndividual"],
+      "rdfs:label": "James Holden Email Box",
+      "cco:designated_by": { "@id": "ex:Email_James" }
+    },
+
+    {
+      "@id": "ex:EmailBox_Staff_003",
+      "@type": ["cco:EmailBox", "owl:NamedIndividual"],
+      "rdfs:label": "Naomi Nagata Email Box",
+      "cco:designated_by": { "@id": "ex:Email_Naomi" }
+    },
+
+    {
+      "rdfs:comment": "=== CORE PERSONS ===",
+      "@id": "ex:Person_JaneDoe_001",
+      "@type": ["cco:Person", "owl:NamedIndividual"],
+      "rdfs:label": "Jane Doe",
+      "cco:designated_by": [
+        { "@type": "cco:PersonGivenName", "val": "Jane" },
+        { "@type": "cco:PersonFamilyName", "val": "Doe" }
+      ],
       "obo:RO_0000053": {
-        "@id": "ex:Role_Dev_001",
-        "@type": "cco:OccupationRole",
-        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" },
-        "cco:described_by": { "@type": "cco:NominalMeasurementInformationContentEntity", "val": "Lead Developer" }
+        "@id": "ex:Role_LeadDev_001",
+        "@type": ["cco:OccupationRole", "owl:NamedIndividual"],
+        "rdfs:label": "Lead Developer Role",
+        "cco:described_by": {
+          "@type": "cco:NominalMeasurementInformationContentEntity",
+          "val": "Lead Developer"
+        },
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" }
       },
       "cco:agent_in": [
+        { "@id": "ex:Project_Alpha" },
+        { "@id": "ex:Residing_Jane_001" },
         {
-          "@id": "ex:Residing_Jane_001",
-          "@type": "cco:ActOfResiding",
-          "obo:RO_0000057": {
-            "@id": "ex:Facility_Home_001",
-            "@type": "cco:ResidentialFacility",
-            "cco:designated_by": { "@type": "cco:StreetAddress", "val": "1234 Walnut St" },
-            "obo:RO_0001025": {
-              "@id": "ex:Region_Springfield",
-              "@type": "cco:LocalAdministrativeRegion",
-              "cco:designated_by": { "@type": "cco:DesignativeName", "val": "Springfield" }
+          "@id": "ex:Birth_Jane_001",
+          "@type": ["cco:Birth", "owl:NamedIndividual"],
+          "rdfs:label": "Jane Doe Birth",
+          "cco:occurs_on": {
+            "@id": "ex:Day_19991231",
+            "@type": ["cco:Day", "owl:NamedIndividual"],
+            "rdfs:label": "31 December 1999",
+            "cco:designated_by": {
+              "@type": "cco:DateIdentifier",
+              "val": "1999-12-31"
             }
           }
         }
       ],
-      "cco:uses": {
-        "@id": "ex:EmailBox_Jane_001",
-        "@type": "cco:EmailBox",
-        "obo:RO_0000056": {
-          "@id": "ex:Stasis_EmailAssign_001",
-          "@type": "cco:StasisOfTelecommunicationEndpointAssignment",
-          "obo:RO_0000057": {
-            "@id": "ex:Endpoint_Email_001",
-            "@type": "cco:TelecommunicationEndpoint",
-            "cco:designated_by": { "@type": "cco:EmailAddress", "val": "janedoe@email.com" }
+      "cco:uses": { "@id": "ex:EmailBox_Jane_001" }
+    },
+
+    {
+      "@id": "ex:Person_JohnSmith_002",
+      "@type": ["cco:Person", "owl:NamedIndividual"],
+      "rdfs:label": "John Smith",
+      "cco:designated_by": {
+        "@type": "cco:DesignativeName",
+        "val": "John Smith"
+      },
+      "obo:RO_0000053": {
+        "@id": "ex:Role_Manager_002",
+        "@type": ["cco:OccupationRole", "owl:NamedIndividual"],
+        "rdfs:label": "Product Manager Role",
+        "cco:described_by": {
+          "@type": "cco:NominalMeasurementInformationContentEntity",
+          "val": "Product Manager"
+        },
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" }
+      },
+      "cco:agent_in": [
+        { "@id": "ex:Project_Alpha" },
+        {
+          "@id": "ex:Birth_John_002",
+          "@type": ["cco:Birth", "owl:NamedIndividual"],
+          "rdfs:label": "John Smith Birth",
+          "cco:occurs_on": {
+            "@id": "ex:Day_19871015",
+            "@type": ["cco:Day", "owl:NamedIndividual"],
+            "rdfs:label": "15 October 1987",
+            "cco:designated_by": {
+              "@type": "cco:DateIdentifier",
+              "val": "1987-10-15"
+            }
           }
         }
-      }
+      ],
+      "cco:uses": { "@id": "ex:EmailBox_John_002" }
     },
+
     {
-      "@id": "ex:Org_TechGiant",
-      "@type": "cco:Organization",
-      "cco:designated_by": { "@id": "ex:Name_TechGiant", "@type": "cco:DesignativeName", "val": "Tech Giant" }
+      "@id": "ex:Person_AliceChen_003",
+      "@type": ["cco:Person", "owl:NamedIndividual"],
+      "rdfs:label": "Alice Chen",
+      "cco:designated_by": {
+        "@type": "cco:DesignativeName",
+        "val": "Alice Chen"
+      },
+      "obo:RO_0000053": {
+        "@id": "ex:Role_SecAnalyst_003",
+        "@type": ["cco:OccupationRole", "owl:NamedIndividual"],
+        "rdfs:label": "Security Analyst Role",
+        "cco:described_by": {
+          "@type": "cco:NominalMeasurementInformationContentEntity",
+          "val": "Security Analyst"
+        },
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" }
+      },
+      "cco:agent_in": [
+        { "@id": "ex:Project_Alpha" },
+        { "@id": "ex:Project_Beta" },
+        {
+          "@id": "ex:Birth_Alice_003",
+          "@type": ["cco:Birth", "owl:NamedIndividual"],
+          "rdfs:label": "Alice Chen Birth",
+          "cco:occurs_on": {
+            "@id": "ex:Day_19920304",
+            "@type": ["cco:Day", "owl:NamedIndividual"],
+            "rdfs:label": "4 March 1992",
+            "cco:designated_by": {
+              "@type": "cco:DateIdentifier",
+              "val": "1992-03-04"
+            }
+          }
+        }
+      ],
+      "cco:uses": { "@id": "ex:EmailBox_Alice_003" }
+    },
+
+    {
+      "rdfs:comment": "=== SECURITY TEAM ===",
+      "@id": "ex:Person_Ripley_004",
+      "@type": ["cco:Person", "owl:NamedIndividual"],
+      "rdfs:label": "Ellen Ripley",
+      "cco:designated_by": {
+        "@type": "cco:DesignativeName",
+        "val": "Ellen Ripley"
+      },
+      "obo:RO_0000053": {
+        "@id": "ex:Role_CSO_004",
+        "@type": ["cco:OccupationRole", "owl:NamedIndividual"],
+        "rdfs:label": "Chief Security Officer Role",
+        "cco:described_by": {
+          "@type": "cco:NominalMeasurementInformationContentEntity",
+          "val": "Chief Security Officer"
+        },
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" }
+      },
+      "cco:agent_in": [
+        { "@id": "ex:Project_Beta" },
+        {
+          "@id": "ex:Birth_Ripley_004",
+          "@type": ["cco:Birth", "owl:NamedIndividual"],
+          "rdfs:label": "Ellen Ripley Birth",
+          "cco:occurs_on": {
+            "@id": "ex:Day_19800621",
+            "@type": ["cco:Day", "owl:NamedIndividual"],
+            "rdfs:label": "21 June 1980",
+            "cco:designated_by": {
+              "@type": "cco:DateIdentifier",
+              "val": "1980-06-21"
+            }
+          }
+        }
+      ],
+      "cco:uses": { "@id": "ex:EmailBox_Ripley_004" }
+    },
+
+    {
+      "@id": "ex:Person_Hicks_005",
+      "@type": ["cco:Person", "owl:NamedIndividual"],
+      "rdfs:label": "Dwayne Hicks",
+      "cco:designated_by": {
+        "@type": "cco:DesignativeName",
+        "val": "Dwayne Hicks"
+      },
+      "obo:RO_0000053": {
+        "@id": "ex:Role_SecSpec_005",
+        "@type": ["cco:OccupationRole", "owl:NamedIndividual"],
+        "rdfs:label": "Security Specialist Role",
+        "cco:described_by": {
+          "@type": "cco:NominalMeasurementInformationContentEntity",
+          "val": "Security Specialist"
+        },
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" }
+      },
+      "cco:agent_in": [
+        { "@id": "ex:Project_Beta" },
+        {
+          "@id": "ex:Birth_Hicks_005",
+          "@type": ["cco:Birth", "owl:NamedIndividual"],
+          "rdfs:label": "Dwayne Hicks Birth",
+          "cco:occurs_on": {
+            "@id": "ex:Day_19830914",
+            "@type": ["cco:Day", "owl:NamedIndividual"],
+            "rdfs:label": "14 September 1983",
+            "cco:designated_by": {
+              "@type": "cco:DateIdentifier",
+              "val": "1983-09-14"
+            }
+          }
+        }
+      ],
+      "cco:uses": { "@id": "ex:EmailBox_Hicks_005" }
+    },
+
+    {
+      "rdfs:comment": "=== SPRINGFIELD REGIONAL STAFF ===",
+      "@id": "ex:Person_Staff_001",
+      "@type": ["cco:Person", "owl:NamedIndividual"],
+      "rdfs:label": "Sarah Connor",
+      "cco:designated_by": { "val": "Sarah Connor" },
+      "obo:RO_0000053": {
+        "@id": "ex:Role_FOL_Staff001",
+        "@type": ["cco:OccupationRole", "owl:NamedIndividual"],
+        "rdfs:label": "Field Operations Lead Role",
+        "cco:described_by": { "val": "Field Operations Lead" },
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" }
+      },
+      "cco:agent_in": { "@id": "ex:Residing_Springfield_Shared" },
+      "cco:uses": { "@id": "ex:EmailBox_Staff_001" }
+    },
+
+    {
+      "@id": "ex:Person_Staff_002",
+      "@type": ["cco:Person", "owl:NamedIndividual"],
+      "rdfs:label": "James Holden",
+      "cco:designated_by": { "val": "James Holden" },
+      "obo:RO_0000053": {
+        "@id": "ex:Role_SE_Staff002",
+        "@type": ["cco:OccupationRole", "owl:NamedIndividual"],
+        "rdfs:label": "Systems Engineer Role",
+        "cco:described_by": { "val": "Systems Engineer" },
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" }
+      },
+      "cco:agent_in": { "@id": "ex:Residing_Springfield_Shared" },
+      "cco:uses": { "@id": "ex:EmailBox_Staff_002" }
+    },
+
+    {
+      "@id": "ex:Person_Staff_003",
+      "@type": ["cco:Person", "owl:NamedIndividual"],
+      "rdfs:label": "Naomi Nagata",
+      "cco:designated_by": { "val": "Naomi Nagata" },
+      "obo:RO_0000053": {
+        "@id": "ex:Role_DE_Staff003",
+        "@type": ["cco:OccupationRole", "owl:NamedIndividual"],
+        "rdfs:label": "Data Engineer Role",
+        "cco:described_by": { "val": "Data Engineer" },
+        "cco:has_organizational_context": { "@id": "ex:Org_TechGiant" }
+      },
+      "cco:agent_in": { "@id": "ex:Residing_Springfield_Shared" },
+      "cco:uses": { "@id": "ex:EmailBox_Staff_003" }
     }
+
   ]
 }

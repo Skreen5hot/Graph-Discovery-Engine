@@ -29,6 +29,7 @@ const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 /** A single matched result row. */
 export interface QueryResult {
   subjectIri: string;
+  subjectLabel?: string;
   bindings: Record<string, string>;
 }
 
@@ -53,6 +54,31 @@ function getTypes(subjectIri: string, bySubject: Map<string, Triple[]>): string[
 }
 
 // ---------------------------------------------------------------------------
+// Display Value Resolution
+// ---------------------------------------------------------------------------
+
+const RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label";
+
+/**
+ * Resolve a display value for an IRI, checking the triple store directly
+ * for rdfs:label before falling back to closure/IRI cleaning.
+ * This finds labels on named individuals that are not in the closure.
+ */
+function resolveDisplayValue(
+  iri: string,
+  bySubject: Map<string, Triple[]>,
+  closure: OntologyClosure,
+  fallback: string,
+): string {
+  const triples = bySubject.get(iri) ?? [];
+  const labelTriple = triples.find(
+    (t) => t.predicate === RDFS_LABEL && t.isLiteral,
+  );
+  if (labelTriple) return labelTriple.object;
+  return resolveEntityLabel(iri, closure, fallback);
+}
+
+// ---------------------------------------------------------------------------
 // Pattern Walking
 // ---------------------------------------------------------------------------
 
@@ -64,6 +90,10 @@ interface WalkResult {
 /**
  * Walk pattern steps starting from a given node in the triple store.
  * Returns bindings if all steps match, null if any step fails.
+ *
+ * Supports backtracking: when a forward edge has multiple candidate
+ * triples, each candidate is tried with the remaining steps. The
+ * first candidate that produces a successful complete walk wins.
  */
 function walkSteps(
   steps: readonly PatternStep[],
@@ -75,21 +105,14 @@ function walkSteps(
   let node = currentNode;
   let lastEdgePredicate = "";
 
-  for (const step of steps) {
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
     switch (step.type) {
       case "edge": {
         lastEdgePredicate = step.predicate;
-        // Find a triple where (node, predicate, ?)
         const triples = bySubject.get(node) ?? [];
-        // For forward edges, try IRI objects first, then literals
-        const match = step.direction === "forward"
-          ? (triples.find((t) => t.predicate === step.predicate && !t.isLiteral)
-             ?? triples.find((t) => t.predicate === step.predicate))
-          : null;
 
         if (step.direction === "inverse") {
-          // Scan all triples for inverse match
-          // For small graphs this is fine
           let found: Triple | undefined;
           for (const [_subj, subTriples] of bySubject) {
             found = subTriples.find(
@@ -100,62 +123,66 @@ function walkSteps(
           if (!found) return { matched: false, bindings };
           node = found.subject;
         } else {
-          if (!match) return { matched: false, bindings };
-          node = match.object;
+          // Forward edge: collect all candidates (IRI first, then literals)
+          const iriCandidates = triples.filter(
+            (t) => t.predicate === step.predicate && !t.isLiteral,
+          );
+          const litCandidates = triples.filter(
+            (t) => t.predicate === step.predicate && t.isLiteral,
+          );
+          const allCandidates = [...iriCandidates, ...litCandidates];
+
+          if (allCandidates.length === 0) return { matched: false, bindings };
+
+          if (allCandidates.length === 1) {
+            // Single candidate — no backtracking needed
+            node = allCandidates[0].object;
+          } else {
+            // Multiple candidates — try each with remaining steps
+            const remainingSteps = steps.slice(i + 1);
+            for (const candidate of allCandidates) {
+              const result = walkSteps(remainingSteps, candidate.object, bySubject, closure);
+              if (result.matched) {
+                Object.assign(bindings, result.bindings);
+                return { matched: true, bindings };
+              }
+            }
+            return { matched: false, bindings };
+          }
         }
         break;
       }
 
       case "node": {
-        // Verify the current node has rdf:type matching the step's class.
-        // For small demo graphs, be lenient: if the node exists in the store
-        // but lacks an explicit rdf:type for this specific class, still allow
-        // the match if the node has ANY type. This handles nested objects
-        // that may have been auto-typed during JSON-LD expansion.
         const types = getTypes(node, bySubject);
         if (types.length > 0 && !types.includes(step.class)) {
           return { matched: false, bindings };
         }
-        // If node has no types at all but exists in the store, continue
-        // (blank nodes from nested JSON-LD objects)
         break;
       }
 
       case "bind": {
-        // Record the resolved display value for the bound node.
-        // Priority:
-        // 1. Follow cco:has_value or similar literal predicates for the actual value
-        // 2. Resolve the node IRI via Labeling Law / IRI cleaning
-        // 3. Fall back to the node's class label (never the role name)
         const nodeTriples = bySubject.get(node) ?? [];
 
-        // Check for a literal value predicate (cco:has_value, rdfs:label, etc.)
         const HAS_VALUE = "http://www.ontologyrepository.com/CommonCoreOntologies/has_value";
-        const literalTriple = nodeTriples.find(
+        const valueTriple = nodeTriples.find(
           (t) => t.isLiteral && (t.predicate === HAS_VALUE || t.predicate.endsWith("has_value")),
-        ) ?? nodeTriples.find(
-          (t) => t.isLiteral && (t.predicate.endsWith("label") || t.predicate.endsWith("name")),
         );
 
-        if (literalTriple) {
-          bindings[step.role] = literalTriple.object;
+        if (valueTriple) {
+          bindings[step.role] = valueTriple.object;
         } else {
-          // Resolve the IRI — use the node's first rdf:type label as fallback
           const nodeTypes = getTypes(node, bySubject);
           const typeFallback = nodeTypes.length > 0
             ? extractLocalName(nodeTypes[0]).replace(/([a-z])([A-Z])/g, "$1 $2")
             : step.role;
-          bindings[step.role] = resolveEntityLabel(node, closure, typeFallback);
+          bindings[step.role] = resolveDisplayValue(node, bySubject, closure, typeFallback);
         }
         break;
       }
 
       case "literal": {
         if (step.via === "direct") {
-          // For direct literal patterns, the preceding edge step already
-          // found the literal triple and set `node` to the literal value.
-          // Use the predicate's resolved label as the binding key so it
-          // aligns with column headers.
           const predLabel = resolveEntityLabel(lastEdgePredicate, closure, "value");
           bindings[predLabel] = node;
         }
@@ -163,7 +190,6 @@ function walkSteps(
       }
 
       case "branch": {
-        // Recurse into branch steps from current node
         const branchResult = walkSteps(step.steps, node, bySubject, closure);
         if (!branchResult.matched) return { matched: false, bindings };
         Object.assign(bindings, branchResult.bindings);
@@ -227,8 +253,12 @@ export function executeSingleClause(
         remappedBindings[key] = value;
       }
 
+      const typeFallback = types.length > 0
+        ? extractLocalName(types[0]).replace(/([a-z])([A-Z])/g, "$1 $2")
+        : "";
       results.push({
         subjectIri,
+        subjectLabel: resolveDisplayValue(subjectIri, bySubject, closure, typeFallback),
         bindings: remappedBindings,
       });
     }
@@ -281,17 +311,18 @@ export function executeLocalQuery(
       const merged: QueryResult[] = [];
       for (const subjectIri of allSubjects) {
         const mergedBindings: Record<string, string> = {};
+        let subjectLabel: string | undefined;
         for (const cr of clauseResults) {
           const match = cr.find((r) => r.subjectIri === subjectIri);
           if (match) {
-            // Each clause's bindings are already keyed by outputBind.label
+            if (!subjectLabel && match.subjectLabel) subjectLabel = match.subjectLabel;
             for (const [key, value] of Object.entries(match.bindings)) {
               mergedBindings[key] = value;
             }
           }
         }
         if (Object.keys(mergedBindings).length > 0) {
-          merged.push({ subjectIri, bindings: mergedBindings });
+          merged.push({ subjectIri, subjectLabel, bindings: mergedBindings });
         }
       }
       return merged;
@@ -301,16 +332,18 @@ export function executeLocalQuery(
       // OR: union all results. When the same subject matches multiple
       // clauses, merge bindings from all matching clauses (each clause
       // contributes its outputBind.label-keyed bindings).
-      const unionMap = new Map<string, Record<string, string>>();
+      const unionMap = new Map<string, { bindings: Record<string, string>; subjectLabel?: string }>();
       for (const cr of clauseResults) {
         for (const r of cr) {
-          const existing = unionMap.get(r.subjectIri) ?? {};
-          Object.assign(existing, r.bindings);
+          const existing = unionMap.get(r.subjectIri) ?? { bindings: {} };
+          Object.assign(existing.bindings, r.bindings);
+          if (!existing.subjectLabel && r.subjectLabel) existing.subjectLabel = r.subjectLabel;
           unionMap.set(r.subjectIri, existing);
         }
       }
-      return [...unionMap.entries()].map(([subjectIri, bindings]) => ({
+      return [...unionMap.entries()].map(([subjectIri, { bindings, subjectLabel }]) => ({
         subjectIri,
+        subjectLabel,
         bindings,
       }));
     }
@@ -353,8 +386,8 @@ export function searchEntities(
 
     if (!types.includes(classIri)) continue;
 
-    // Resolve display label
-    const label = resolveEntityLabel(subjectIri, closure, "");
+    // Resolve display label (check store for rdfs:label on named individuals)
+    const label = resolveDisplayValue(subjectIri, bySubject, closure, "");
     if (label && label.toLowerCase().includes(queryLower)) {
       results.push({ iri: subjectIri, label });
     }

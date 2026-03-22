@@ -7,6 +7,8 @@
     { "@id": "obo:RO_0000053", "rdfs:label": "Bearer Of Role" },
     { "@id": "obo:RO_0000056", "rdfs:label": "Participates In" },
     { "@id": "obo:RO_0000057", "rdfs:label": "Has Participant" },
-    { "@id": "obo:RO_0001025", "rdfs:label": "Located In" }
+    { "@id": "obo:RO_0001025", "rdfs:label": "Located In" },
+    { "@id": "obo:BFO_0000023", "rdfs:label": "Role" },
+    { "@id": "obo:BFO_0000196", "rdfs:label": "Bears Role" }
   ]
 }

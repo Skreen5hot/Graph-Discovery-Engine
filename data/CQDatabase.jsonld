@@ -1,0 +1,454 @@
+[
+  {
+    "@id": "http://purl.obolibrary.org/obo/BFO_0000023_role_Creator",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000023",
+      "http://www.w3.org/2002/07/owl#NamedIndividual"
+    ],
+    "https://www.commoncoreontologies.org/ont00001761": [
+      {
+        "@value": "Creator"
+      }
+    ],
+    "id": "http://purl.obolibrary.org/obo/BFO_0000023_role_Creator"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_101574",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "foo"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_2"
+      },
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000009_DecisionLogic_1774006938338_1"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_101574"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1028554796",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "creator"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "http://purl.obolibrary.org/obo/BFO_0000023_role_Creator"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1028554796"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_109267",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "not"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002_CQ_1774006938338"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_109267"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1166787794",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Yo daddy"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://www.commoncoreontologies.org/ont00000756/Database_1774006938338_1"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1166787794"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1290201819",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "many Coo edge"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_2"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1290201819"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1331463047",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "divide"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000009_DecisionLogic_1774006938338_1"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1331463047"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1339635889",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "ZooBar is"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002_CQ_1774006938338"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_1339635889"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_143316869",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "many foo"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002_CQ_1774006938338"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_143316869"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_2146599679",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "right approch"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002_CQ_1774006938338"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_2146599679"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_378031819",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "foobardb"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://www.commoncoreontologies.org/ont00000756/Database_1774006938338_1"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_378031819"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_50233199",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "aaron gmail"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://www.commoncoreontologies.org/CommonCoreOntologies/EmailAddress_1774006938338"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_50233199"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_578838217",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Total bar"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_1"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_578838217"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_96852",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "are"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_2"
+      },
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002_CQ_1774006938338"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_96852"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_97299",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "bar"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002_CQ_1774006938338"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_97299"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_98689",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "com"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://www.commoncoreontologies.org/CommonCoreOntologies/EmailAddress_1774006938338"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_98689"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_98691",
+    "@type": [
+      "http://purl.obolibrary.org/obo/BFO_0000031"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "coo"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000176": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000009_DecisionLogic_1774006938338_1"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/GDC_GDC_98691"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_1",
+    "@type": [
+      "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001",
+      "http://www.w3.org/2002/07/owl#NamedIndividual"
+    ],
+    "https://www.commoncoreontologies.org/ont00001761": [
+      {
+        "@value": "Total Bars?"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_1"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_2",
+    "@type": [
+      "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001",
+      "http://www.w3.org/2002/07/owl#NamedIndividual"
+    ],
+    "https://www.commoncoreontologies.org/ont00001761": [
+      {
+        "@value": "How many Coo edges are to the Foo?"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_2"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002_CQ_1774006938338",
+    "@type": [
+      "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002",
+      "http://www.w3.org/2002/07/owl#NamedIndividual"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "How many foos are in a bar"
+      }
+    ],
+    "http://purl.org/dc/terms/description": [
+      {
+        "@value": "ZooBar is not the right approch"
+      }
+    ],
+    "http://purl.org/dc/terms/created": [
+      {
+        "@value": "2026-03-20T11:42:18.338Z",
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      }
+    ],
+    "http://purl.org/dc/terms/modified": [
+      {
+        "@value": "2026-03-20T11:42:18.338Z",
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      }
+    ],
+    "http://example.com/ns/status": [
+      {
+        "@value": "Draft"
+      }
+    ],
+    "http://purl.org/dc/terms/contributor": [
+      {
+        "@id": "https://www.commoncoreontologies.org/ont00001262/Person_1774006938338"
+      }
+    ],
+    "http://purl.org/dc/terms/requires": [
+      {
+        "@id": "https://www.commoncoreontologies.org/ont00000756/Database_1774006938338_1"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000178": [
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000009_DecisionLogic_1774006938338_1"
+      },
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_1"
+      },
+      {
+        "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000001_IterrogativeICE_1774006938338_2"
+      }
+    ],
+    "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000012": [],
+    "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000014": [],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000002_CQ_1774006938338"
+  },
+  {
+    "@id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000009_DecisionLogic_1774006938338_1",
+    "@type": [
+      "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000009",
+      "http://www.w3.org/2002/07/owl#NamedIndividual"
+    ],
+    "https://www.commoncoreontologies.org/ont00001761": [
+      {
+        "@value": "Coo divided by Foo"
+      }
+    ],
+    "id": "https://github.com/jonathanvajda/SemanticArtifactOntology/ont000009_DecisionLogic_1774006938338_1"
+  },
+  {
+    "@id": "https://www.commoncoreontologies.org/CommonCoreOntologies/EmailAddress_1774006938338",
+    "@type": [
+      "https://www.commoncoreontologies.org/CommonCoreOntologies/EmailAddress",
+      "http://www.w3.org/2002/07/owl#NamedIndividual"
+    ],
+    "https://www.commoncoreontologies.org/ont00001761": [
+      {
+        "@value": "aaron@gmail.com"
+      }
+    ],
+    "id": "https://www.commoncoreontologies.org/CommonCoreOntologies/EmailAddress_1774006938338"
+  },
+  {
+    "@id": "https://www.commoncoreontologies.org/ont00000756/Database_1774006938338_1",
+    "@type": [
+      "https://www.commoncoreontologies.org/ont00000756",
+      "http://www.w3.org/2002/07/owl#NamedIndividual"
+    ],
+    "https://www.commoncoreontologies.org/ont00001761": [
+      {
+        "@value": "FooBarDB"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@value": "Yo daddy"
+      }
+    ],
+    "id": "https://www.commoncoreontologies.org/ont00000756/Database_1774006938338_1"
+  },
+  {
+    "@id": "https://www.commoncoreontologies.org/ont00001262/Person_1774006938338",
+    "@type": [
+      "https://www.commoncoreontologies.org/ont00001262",
+      "http://www.w3.org/2002/07/owl#NamedIndividual"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Aaron"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@value": "yo mamma"
+      }
+    ],
+    "https://www.commoncoreontologies.org/ont00001801": [
+      {
+        "@id": "https://www.commoncoreontologies.org/CommonCoreOntologies/EmailAddress_1774006938338"
+      }
+    ],
+    "http://purl.obolibrary.org/obo/BFO_0000196": [
+      {
+        "@id": "http://purl.obolibrary.org/obo/BFO_0000023_role_Creator"
+      }
+    ],
+    "id": "https://www.commoncoreontologies.org/ont00001262/Person_1774006938338"
+  },
+  {
+    "@id": "sync_state",
+    "id": "sync_state",
+    "http://purl.org/dc/terms/modified": "2026-03-20T11:42:18.339Z"
+  }
+]

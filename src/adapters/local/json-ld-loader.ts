@@ -28,6 +28,8 @@ export interface Triple {
 export interface LocalTripleStore {
   triples: Triple[];
   prefixes: Record<string, string>;
+  /** Raw @context object, preserved for alias label injection. */
+  rawContext?: Record<string, unknown>;
 }
 
 // ---------------------------------------------------------------------------
@@ -87,26 +89,42 @@ export function expandIri(term: string, prefixes: Record<string, string>): strin
 /**
  * Extract prefix map from @context.
  * Keys are prefixes, values are base IRIs.
- * Handles string values that are prefixed terms (aliases like "val": "cco:has_value").
+ * Handles:
+ *   - String values that are full IRIs (prefix declarations)
+ *   - String values that are prefixed terms (aliases like "val": "cco:has_value")
+ *   - Object values with @id (term definitions like "Person": { "@id": "cco:ont00001262" })
  */
 function parseContext(context: unknown): Record<string, string> {
   const prefixes: Record<string, string> = {};
   if (typeof context !== "object" || context === null) return prefixes;
 
   const ctx = context as Record<string, unknown>;
-  // First pass: collect direct URI prefixes
+  // First pass: collect direct URI prefixes (string → full IRI)
   for (const [key, value] of Object.entries(ctx)) {
     if (key.startsWith("@")) continue;
     if (typeof value === "string" && (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("urn:"))) {
       prefixes[key] = value;
     }
   }
-  // Second pass: expand aliases (values that are prefixed terms)
+  // Second pass: expand string aliases (prefixed terms like "val": "cco:has_value")
   for (const [key, value] of Object.entries(ctx)) {
     if (key.startsWith("@")) continue;
     if (typeof value === "string" && !value.startsWith("http://") && !value.startsWith("https://") && !value.startsWith("urn:")) {
       const expanded = expandIri(value, prefixes);
       if (expanded !== value) {
+        prefixes[key] = expanded;
+      }
+    }
+  }
+  // Third pass: extract @id from object-valued term definitions
+  // e.g., "Person": { "@id": "cco:ont00001262" } → prefixes["Person"] = expanded IRI
+  for (const [key, value] of Object.entries(ctx)) {
+    if (key.startsWith("@")) continue;
+    if (typeof value === "object" && value !== null) {
+      const obj = value as Record<string, unknown>;
+      const id = obj["@id"];
+      if (typeof id === "string") {
+        const expanded = expandIri(id, prefixes);
         prefixes[key] = expanded;
       }
     }
@@ -255,7 +273,10 @@ export function parseJsonLdDoc(doc: Record<string, unknown> | unknown[]): LocalT
   }
 
   // Parse context — merge with defaults for common prefixes
-  const prefixes = { ...DEFAULT_PREFIXES, ...parseContext(doc["@context"]) };
+  const rawContext = (typeof doc["@context"] === "object" && doc["@context"] !== null)
+    ? doc["@context"] as Record<string, unknown>
+    : undefined;
+  const prefixes = { ...DEFAULT_PREFIXES, ...parseContext(rawContext) };
 
   // Parse graph
   const graph = doc["@graph"];
@@ -270,7 +291,7 @@ export function parseJsonLdDoc(doc: Record<string, unknown> | unknown[]): LocalT
     extractNode(doc, prefixes, triples);
   }
 
-  return { triples, prefixes };
+  return { triples, prefixes, rawContext };
 }
 
 /**

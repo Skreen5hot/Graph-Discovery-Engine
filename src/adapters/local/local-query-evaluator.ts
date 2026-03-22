@@ -26,6 +26,17 @@ const OWL_ONE_OF = "http://www.w3.org/2002/07/owl#oneOf";
 const OWL_SAME_AS = "http://www.w3.org/2002/07/owl#sameAs";
 const RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label";
 
+/** OWL meta-classes excluded from subject type indexing. */
+const OWL_META_CLASSES = new Set([
+  "http://www.w3.org/2002/07/owl#NamedIndividual",
+  "http://www.w3.org/2002/07/owl#Thing",
+  "http://www.w3.org/2002/07/owl#Class",
+  "http://www.w3.org/2002/07/owl#ObjectProperty",
+  "http://www.w3.org/2002/07/owl#DatatypeProperty",
+  "http://www.w3.org/2002/07/owl#AnnotationProperty",
+  "http://www.w3.org/2002/07/owl#Ontology",
+]);
+
 /** Structural predicates excluded from Q1/Q2. */
 const STRUCTURAL_PREDICATES = new Set([
   RDF_TYPE, RDFS_LABEL, OWL_SAME_AS,
@@ -44,11 +55,11 @@ const STRUCTURAL_PREDICATES = new Set([
 // Index Building
 // ---------------------------------------------------------------------------
 
-/** Build subject → class IRIs index. */
+/** Build subject → class IRIs index, filtering OWL meta-classes. */
 function buildSubjectTypes(store: LocalTripleStore): Map<string, Set<string>> {
   const index = new Map<string, Set<string>>();
   for (const t of store.triples) {
-    if (t.predicate === RDF_TYPE && !t.isLiteral) {
+    if (t.predicate === RDF_TYPE && !t.isLiteral && !OWL_META_CLASSES.has(t.object)) {
       const types = index.get(t.subject) ?? new Set();
       types.add(t.object);
       index.set(t.subject, types);
@@ -196,7 +207,7 @@ export function runQ3(store: LocalTripleStore): PropertyChain[] {
 export function runQ4(store: LocalTripleStore): Map<string, number> {
   const counts = new Map<string, number>();
   for (const t of store.triples) {
-    if (t.predicate === RDF_TYPE && !t.isLiteral) {
+    if (t.predicate === RDF_TYPE && !t.isLiteral && !OWL_META_CLASSES.has(t.object)) {
       counts.set(t.object, (counts.get(t.object) ?? 0) + 1);
     }
   }
