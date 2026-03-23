@@ -13,17 +13,17 @@ export default defineConfig({
     emptyOutDir: true,
   },
   resolve: {
-    alias: {
-      // Shim node:fs/promises for browser builds (parseJsonLdDoc is pure,
-      // only loadJsonLdGraph uses readFile — which is never called in static mode)
+    alias: [
+      // Shim node:fs/promises for browser builds
       ...(isStaticDemo
-        ? {
-            "node:fs/promises": resolve(__dirname, "src/adapters/static/fs-shim.ts"),
-            // Swap api.ts for api-static.ts (in-memory backend)
-            [resolve(__dirname, "src/ui/api.ts")]: resolve(__dirname, "src/ui/api-static.ts"),
-          }
-        : {}),
-    },
+        ? [
+            { find: "node:fs/promises", replacement: resolve(__dirname, "src/adapters/static/fs-shim.ts") },
+            { find: "node:crypto", replacement: resolve(__dirname, "src/adapters/static/crypto-shim.ts") },
+            { find: /^\.\/api\.js$/, replacement: resolve(__dirname, "src/ui/api-static.ts") },
+            { find: /^\.\.\/api\.js$/, replacement: resolve(__dirname, "src/ui/api-static.ts") },
+          ]
+        : []),
+    ],
   },
   server: {
     port: 5173,
