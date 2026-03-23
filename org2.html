@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -19,263 +18,158 @@
     --sans:    'Segoe UI', system-ui, -apple-system, sans-serif;
   }
 
-- { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-background: var(–bg);
-color: var(–text);
-font-family: var(–sans);
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-}
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans); min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
 
-body::before {
-content: ‘’;
-position: fixed;
-inset: 0;
-background: repeating-linear-gradient(
-0deg, transparent, transparent 2px,
-rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
-);
-pointer-events: none;
-z-index: 1000;
-}
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+    pointer-events: none; z-index: 1000;
+  }
 
-header {
-border-bottom: 1px solid var(–border);
-padding: 18px 28px;
-display: flex;
-align-items: center;
-gap: 14px;
-background: var(–panel);
-flex-shrink: 0;
-}
+  header {
+    border-bottom: 1px solid var(--border); padding: 18px 28px;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--panel); flex-shrink: 0;
+  }
+  .logo-mark {
+    width: 32px; height: 32px; border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; flex-shrink: 0;
+  }
+  .logo-mark::before {
+    content: ''; position: absolute; width: 14px; height: 14px;
+    border: 2px solid var(--accent2); transform: rotate(45deg);
+  }
+  header h1 { font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; }
+  header p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .tag { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--accent2); border: 1px solid var(--accent2); padding: 3px 8px; letter-spacing: 0.1em; }
 
-.logo-mark {
-width: 32px; height: 32px;
-border: 2px solid var(–accent);
-display: flex; align-items: center; justify-content: center;
-position: relative; flex-shrink: 0;
-}
-.logo-mark::before {
-content: ‘’;
-position: absolute;
-width: 14px; height: 14px;
-border: 2px solid var(–accent2);
-transform: rotate(45deg);
-}
+  main { flex: 1; display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 69px); overflow: hidden; }
 
-header h1 {
-font-family: var(–mono);
-font-size: 13px;
-letter-spacing: 0.12em;
-color: var(–accent);
-text-transform: uppercase;
-}
-header p { font-size: 11px; color: var(–muted); margin-top: 2px; }
+  .controls {
+    border-right: 1px solid var(--border); padding: 22px 20px;
+    display: flex; flex-direction: column; gap: 20px;
+    overflow-y: auto; background: var(--panel);
+  }
 
-.tag {
-margin-left: auto;
-font-family: var(–mono);
-font-size: 10px;
-color: var(–accent2);
-border: 1px solid var(–accent2);
-padding: 3px 8px;
-letter-spacing: 0.1em;
-}
+  .section-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-main {
-flex: 1;
-display: grid;
-grid-template-columns: 320px 1fr;
-height: calc(100vh - 69px);
-overflow: hidden;
-}
+  label.field-label { display: block; font-size: 11px; color: var(--muted); letter-spacing: 0.07em; margin-bottom: 5px; text-transform: uppercase; }
 
-.controls {
-border-right: 1px solid var(–border);
-padding: 22px 20px;
-display: flex;
-flex-direction: column;
-gap: 20px;
-overflow-y: auto;
-background: var(–panel);
-}
+  input[type="password"] {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--mono); font-size: 12px;
+    padding: 9px 11px; outline: none; transition: border-color 0.2s;
+  }
+  input:focus { border-color: var(--accent); }
 
-.section-label {
-font-family: var(–mono);
-font-size: 10px;
-letter-spacing: 0.18em;
-color: var(–muted);
-text-transform: uppercase;
-margin-bottom: 8px;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-.section-label::after { content: ‘’; flex: 1; height: 1px; background: var(–border); }
+  /* Rules summary box */
+  .rules-box {
+    background: var(--bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); padding: 11px 13px;
+    font-size: 11px; line-height: 1.9; color: var(--text);
+  }
+  .rules-box .rule { display: flex; align-items: baseline; gap: 8px; }
+  .rules-box .badge {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em;
+    padding: 1px 6px; border: 1px solid; flex-shrink: 0;
+  }
+  .badge-on  { color: var(--accent2); border-color: var(--accent2); }
+  .badge-off { color: var(--warn);    border-color: var(--warn); }
 
-label.field-label {
-display: block;
-font-size: 11px;
-color: var(–muted);
-letter-spacing: 0.07em;
-margin-bottom: 5px;
-text-transform: uppercase;
-}
+  .delay-row { display: flex; align-items: center; gap: 10px; }
+  .delay-row input[type="range"] { flex: 1; accent-color: var(--accent); background: transparent; border: none; padding: 0; }
+  .delay-val { font-family: var(--mono); font-size: 12px; color: var(--accent); width: 48px; text-align: right; }
 
-input[type=“text”],
-input[type=“password”] {
-width: 100%;
-background: var(–bg);
-border: 1px solid var(–border);
-color: var(–text);
-font-family: var(–mono);
-font-size: 12px;
-padding: 9px 11px;
-outline: none;
-transition: border-color 0.2s;
-}
-input:focus { border-color: var(–accent); }
+  .radio-group { display: flex; flex-direction: column; gap: 6px; }
+  .radio-item {
+    display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: border-color 0.2s; font-size: 12px; user-select: none;
+  }
+  .radio-item:hover { border-color: var(--muted); }
+  .radio-item.selected { border-color: var(--accent); color: var(--accent); }
+  .radio-item input { display: none; }
+  .radio-dot { width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 50%; flex-shrink: 0; position: relative; }
+  .radio-item.selected .radio-dot::after { content: ''; position: absolute; inset: 2px; background: var(--accent); border-radius: 50%; }
 
-.radio-group { display: flex; flex-direction: column; gap: 6px; }
-.radio-item {
-display: flex;
-align-items: center;
-gap: 9px;
-padding: 8px 10px;
-border: 1px solid var(–border);
-cursor: pointer;
-transition: border-color 0.2s;
-font-size: 12px;
-user-select: none;
-}
-.radio-item:hover { border-color: var(–muted); }
-.radio-item.selected { border-color: var(–accent); color: var(–accent); }
-.radio-item input { display: none; }
-.radio-dot {
-width: 8px; height: 8px;
-border: 1px solid currentColor;
-border-radius: 50%;
-flex-shrink: 0;
-position: relative;
-}
-.radio-item.selected .radio-dot::after {
-content: ‘’;
-position: absolute;
-inset: 2px;
-background: var(–accent);
-border-radius: 50%;
-}
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .stat-box { background: var(--bg); border: 1px solid var(--border); padding: 9px 11px; }
+  .stat-box .val { font-family: var(--mono); font-size: 20px; color: var(--accent); line-height: 1; }
+  .stat-box .lbl { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+  .stat-box.green .val { color: var(--accent2); }
+  .stat-box.orange .val { color: var(--warn); }
 
-.info-box {
-font-size: 11px;
-color: var(–muted);
-background: var(–bg);
-border: 1px solid var(–border);
-border-left: 3px solid var(–warn);
-padding: 9px 11px;
-line-height: 1.6;
-margin-top: 8px;
-}
-.info-box strong { color: var(–warn); }
+  .progress-wrap { background: var(--bg); border: 1px solid var(--border); height: 4px; overflow: hidden; margin-top: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s ease; width: 0%; }
+  .progress-fill.indeterminate { width: 35%; animation: slide 1.2s ease-in-out infinite; }
+  @keyframes slide { 0% { transform: translateX(-200%); } 100% { transform: translateX(450%); } }
 
-.delay-row { display: flex; align-items: center; gap: 10px; }
-.delay-row input[type=“range”] {
-flex: 1; accent-color: var(–accent); background: transparent; border: none; padding: 0;
-}
-.delay-val { font-family: var(–mono); font-size: 12px; color: var(–accent); width: 48px; text-align: right; }
+  .btn { width: 100%; padding: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: var(--accent); color: var(--bg); font-weight: bold; }
+  .btn-primary:hover:not(:disabled) { background: #33d4ff; }
+  .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--accent2); border: 1px solid var(--accent2); }
+  .btn-secondary:hover:not(:disabled) { background: rgba(0,255,157,0.07); }
+  .btn-secondary:disabled { color: var(--muted); border-color: var(--border); cursor: not-allowed; }
+  .btn-stop { background: transparent; color: var(--warn); border: 1px solid var(--warn); }
+  .btn-stop:hover:not(:disabled) { background: rgba(255,107,53,0.08); }
+  .btn-stop:disabled { color: var(--muted); border-color: var(--border); cursor: not-allowed; }
+  .btn-group { display: flex; flex-direction: column; gap: 7px; }
 
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-.stat-box { background: var(–bg); border: 1px solid var(–border); padding: 9px 11px; }
-.stat-box .val { font-family: var(–mono); font-size: 20px; color: var(–accent); line-height: 1; }
-.stat-box .lbl { font-size: 10px; color: var(–muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+  .output-panel { display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 
-.progress-wrap { background: var(–bg); border: 1px solid var(–border); height: 4px; overflow: hidden; margin-top: 8px; }
-.progress-fill {
-height: 100%;
-background: linear-gradient(90deg, var(–accent), var(–accent2));
-transition: width 0.3s ease;
-width: 0%;
-}
-.progress-fill.indeterminate { width: 35%; animation: slide 1.2s ease-in-out infinite; }
-@keyframes slide { 0% { transform: translateX(-200%); } 100% { transform: translateX(450%); } }
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); background: var(--panel); flex-shrink: 0; align-items: center; padding: 0 8px; }
+  .tab { padding: 10px 16px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); transition: all 0.15s; user-select: none; display: flex; align-items: center; gap: 7px; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-.btn {
-width: 100%; padding: 12px;
-font-family: var(–mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
-border: none; cursor: pointer; transition: all 0.15s;
-}
-.btn-primary { background: var(–accent); color: var(–bg); font-weight: bold; }
-.btn-primary:hover:not(:disabled) { background: #33d4ff; }
-.btn-primary:disabled { background: var(–border); color: var(–muted); cursor: not-allowed; }
-.btn-secondary { background: transparent; color: var(–accent2); border: 1px solid var(–accent2); }
-.btn-secondary:hover:not(:disabled) { background: rgba(0,255,157,0.07); }
-.btn-secondary:disabled { color: var(–muted); border-color: var(–border); cursor: not-allowed; }
-.btn-stop { background: transparent; color: var(–warn); border: 1px solid var(–warn); }
-.btn-stop:hover:not(:disabled) { background: rgba(255,107,53,0.08); }
-.btn-stop:disabled { color: var(–muted); border-color: var(–border); cursor: not-allowed; }
-.btn-group { display: flex; flex-direction: column; gap: 7px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; display: inline-block; }
+  .status-dot.running { background: var(--accent); animation: pulse 1s ease infinite; }
+  .status-dot.done    { background: var(--accent2); }
+  .status-dot.error   { background: var(--warn); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 
-.output-panel { display: flex; flex-direction: column; background: var(–bg); overflow: hidden; }
+  .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+  .tab-content.active { display: flex; }
 
-.tab-bar {
-display: flex;
-border-bottom: 1px solid var(–border);
-background: var(–panel);
-flex-shrink: 0;
-align-items: center;
-padding: 0 8px;
-}
-.tab {
-padding: 10px 16px;
-font-family: var(–mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-cursor: pointer; border-bottom: 2px solid transparent; color: var(–muted);
-transition: all 0.15s; user-select: none;
-display: flex; align-items: center; gap: 7px;
-}
-.tab:hover { color: var(–text); }
-.tab.active { color: var(–accent); border-bottom-color: var(–accent); }
+  #log-pane {
+    flex: 1; overflow-y: auto; padding: 14px 18px;
+    font-family: var(--mono); font-size: 12px; line-height: 1.85;
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .log-line { display: flex; gap: 12px; animation: fadeIn 0.12s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateX(-3px); } to { opacity: 1; transform: translateX(0); } }
+  .log-line .ts  { color: var(--muted); flex-shrink: 0; }
+  .log-line .msg { color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .log-line.ok     .msg { color: var(--accent2); }
+  .log-line.warn   .msg { color: var(--warn); }
+  .log-line.error  .msg { color: #ff4444; }
+  .log-line.head   .msg { color: var(--accent); }
+  .log-line.skip   .msg { color: var(--muted); font-style: italic; }
 
-.status-dot {
-width: 7px; height: 7px; border-radius: 50%;
-background: var(–muted); flex-shrink: 0; display: inline-block;
-}
-.status-dot.running { background: var(–accent); animation: pulse 1s ease infinite; }
-.status-dot.done    { background: var(–accent2); }
-.status-dot.error   { background: var(–warn); }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+  #json-blob {
+    flex: 1; overflow-y: auto; padding: 14px 18px;
+    font-family: var(--mono); font-size: 11px; line-height: 1.65;
+    color: #7ec8a0; white-space: pre; word-break: break-all;
+  }
 
-.tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
-.tab-content.active { display: flex; }
-
-#log-pane {
-flex: 1; overflow-y: auto; padding: 14px 18px;
-font-family: var(–mono); font-size: 12px; line-height: 1.85;
-display: flex; flex-direction: column; gap: 1px;
-}
-.log-line { display: flex; gap: 12px; animation: fadeIn 0.12s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateX(-3px); } to { opacity: 1; transform: translateX(0); } }
-.log-line .ts  { color: var(–muted); flex-shrink: 0; }
-.log-line .msg { color: var(–text); white-space: pre-wrap; word-break: break-word; }
-.log-line.ok   .msg { color: var(–accent2); }
-.log-line.warn .msg { color: var(–warn); }
-.log-line.error .msg { color: #ff4444; }
-.log-line.head  .msg { color: var(–accent); }
-
-#json-blob {
-flex: 1; overflow-y: auto; padding: 14px 18px;
-font-family: var(–mono); font-size: 11px; line-height: 1.65;
-color: #7ec8a0; white-space: pre; word-break: break-all;
-}
-
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(–bg); }
-::-webkit-scrollbar-thumb { background: var(–border); }
-::-webkit-scrollbar-thumb:hover { background: var(–muted); }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 </style>
-
 </head>
 <body>
 
@@ -285,78 +179,70 @@ color: #7ec8a0; white-space: pre; word-break: break-all;
     <h1>Federal Hierarchy Crawler</h1>
     <p>SAM.gov / GSA Federal Organizations API</p>
   </div>
-  <div class="tag">v1.1</div>
+  <div class="tag">v1.3</div>
 </header>
 
 <main>
   <div class="controls">
 
-```
-<div>
-  <div class="section-label">Authentication</div>
-  <label class="field-label">API Key</label>
-  <input type="password" id="api-key" placeholder="Paste your SAM.gov API key" autocomplete="off">
-</div>
+    <div>
+      <div class="section-label">Authentication</div>
+      <label class="field-label">API Key</label>
+      <input type="password" id="api-key" placeholder="Paste your SAM.gov API key" autocomplete="off">
+    </div>
 
-<div>
-  <div class="section-label">Environment</div>
-  <div class="radio-group">
-    <label class="radio-item">
-      <input type="radio" name="env" value="alpha" checked>
-      <span class="radio-dot"></span>Alpha (api-alpha.sam.gov)
-    </label>
-    <label class="radio-item">
-      <input type="radio" name="env" value="prod">
-      <span class="radio-dot"></span>Production (api.sam.gov)
-    </label>
-  </div>
-</div>
+    <div>
+      <div class="section-label">Environment</div>
+      <div class="radio-group">
+        <label class="radio-item">
+          <input type="radio" name="env" value="alpha" checked>
+          <span class="radio-dot"></span>Alpha (api-alpha.sam.gov)
+        </label>
+        <label class="radio-item">
+          <input type="radio" name="env" value="prod">
+          <span class="radio-dot"></span>Production (api.sam.gov)
+        </label>
+      </div>
+    </div>
 
-<div>
-  <div class="section-label">Scope</div>
-  <div class="radio-group">
-    <label class="radio-item">
-      <input type="radio" name="scope" value="public" checked>
-      <span class="radio-dot"></span>Public — Dept + Sub-Tier
-    </label>
-    <label class="radio-item">
-      <input type="radio" name="scope" value="fouo">
-      <span class="radio-dot"></span>FOUO — Full depth (federal)
-    </label>
-  </div>
-  <div class="info-box">
-    <strong>Public:</strong> Levels 1–2. 10 req/day (non-federal), 1,000/day (federal).<br>
-    <strong>FOUO:</strong> All levels incl. offices. Federal system account required.
-  </div>
-</div>
+    <div>
+      <div class="section-label">Filter Rules (fixed)</div>
+      <div class="rules-box">
+        <div class="rule"><span class="badge badge-on">KEEP</span> status = ACTIVE</div>
+        <div class="rule"><span class="badge badge-on">KEEP</span> fhorgtype = Department/Ind. Agency</div>
+        <div class="rule"><span class="badge badge-on">KEEP</span> fhorgtype = Sub-Tier (unique names only)</div>
+        <div class="rule"><span class="badge badge-off">DROP</span> fhorgtype = OFFICE</div>
+        <div class="rule"><span class="badge badge-off">DROP</span> Sub-Tier whose name = parent Dept name</div>
+        <div class="rule"><span class="badge badge-off">DROP</span> any duplicate name (case-insensitive)</div>
+      </div>
+    </div>
 
-<div>
-  <div class="section-label">Request Delay</div>
-  <label class="field-label">Pause between requests</label>
-  <div class="delay-row">
-    <input type="range" id="delay-slider" min="100" max="2000" step="100" value="300">
-    <span class="delay-val" id="delay-val">300ms</span>
-  </div>
-</div>
+    <div>
+      <div class="section-label">Request Delay</div>
+      <label class="field-label">Pause between requests</label>
+      <div class="delay-row">
+        <input type="range" id="delay-slider" min="100" max="2000" step="100" value="300">
+        <span class="delay-val" id="delay-val">300ms</span>
+      </div>
+    </div>
 
-<div>
-  <div class="section-label">Status</div>
-  <div class="stats-grid">
-    <div class="stat-box"><div class="val" id="stat-reqs">0</div><div class="lbl">Requests</div></div>
-    <div class="stat-box"><div class="val" id="stat-orgs">0</div><div class="lbl">Orgs Found</div></div>
-    <div class="stat-box"><div class="val" id="stat-depth">—</div><div class="lbl">Max Depth</div></div>
-    <div class="stat-box"><div class="val" id="stat-errs">0</div><div class="lbl">Errors</div></div>
-  </div>
-  <div class="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
-</div>
+    <div>
+      <div class="section-label">Status</div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="val" id="stat-reqs">0</div><div class="lbl">Requests</div></div>
+        <div class="stat-box"><div class="val" id="stat-raw">0</div><div class="lbl">Raw Orgs</div></div>
+        <div class="stat-box green"><div class="val" id="stat-kept">0</div><div class="lbl">Kept (unique)</div></div>
+        <div class="stat-box orange"><div class="val" id="stat-dropped">0</div><div class="lbl">Dropped</div></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
 
-<div class="btn-group">
-  <button class="btn btn-primary"   id="btn-start">▶  START CRAWL</button>
-  <button class="btn btn-stop"      id="btn-stop"     disabled>■  STOP</button>
-  <button class="btn btn-secondary" id="btn-download" disabled>⬇  DOWNLOAD JSON</button>
-  <button class="btn btn-secondary" id="btn-copy"     disabled>⎘  COPY TO CLIPBOARD</button>
-</div>
-```
+    <div class="btn-group">
+      <button class="btn btn-primary"   id="btn-start">▶  START CRAWL</button>
+      <button class="btn btn-stop"      id="btn-stop"     disabled>■  STOP</button>
+      <button class="btn btn-secondary" id="btn-download" disabled>⬇  DOWNLOAD JSON</button>
+      <button class="btn btn-secondary" id="btn-copy"     disabled>⎘  COPY TO CLIPBOARD</button>
+    </div>
 
   </div>
 
@@ -368,29 +254,27 @@ color: #7ec8a0; white-space: pre; word-break: break-all;
       <div class="tab" data-tab="json">JSON Output</div>
     </div>
 
-```
-<div class="tab-content active" id="tab-log">
-  <div id="log-pane">
-    <div class="log-line">
-      <span class="ts">——</span>
-      <span class="msg">Configure your API key and press START CRAWL.</span>
+    <div class="tab-content active" id="tab-log">
+      <div id="log-pane">
+        <div class="log-line">
+          <span class="ts">——</span>
+          <span class="msg">Configure your API key and press START CRAWL.</span>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<div class="tab-content" id="tab-json">
-  <div id="json-blob">// Output will appear here after crawl completes.</div>
-</div>
-```
-
+    <div class="tab-content" id="tab-json">
+      <div id="json-blob">// Output will appear here after crawl completes.</div>
+    </div>
   </div>
 </main>
 
 <script>
 let aborted = false;
-let stats = { reqs: 0, orgs: 0, maxDepth: 0, errors: 0 };
-let resultTree = null;
+let stats = { reqs: 0, raw: 0, kept: 0, dropped: 0 };
+let resultData = null;
 
+// ── UI ────────────────────────────────────────────────────────────────────────
 function ts() { return new Date().toTimeString().slice(0, 8); }
 
 function log(msg, type = 'info') {
@@ -402,25 +286,24 @@ function log(msg, type = 'info') {
   pane.scrollTop = pane.scrollHeight;
 }
 
-function setStatus(s) {
-  document.getElementById('status-dot').className = `status-dot ${s}`;
-}
+function setStatus(s) { document.getElementById('status-dot').className = `status-dot ${s}`; }
 
 function updateStats() {
-  document.getElementById('stat-reqs').textContent  = stats.reqs;
-  document.getElementById('stat-orgs').textContent  = stats.orgs;
-  document.getElementById('stat-depth').textContent = stats.maxDepth || '—';
-  document.getElementById('stat-errs').textContent  = stats.errors;
+  document.getElementById('stat-reqs').textContent    = stats.reqs;
+  document.getElementById('stat-raw').textContent     = stats.raw;
+  document.getElementById('stat-kept').textContent    = stats.kept;
+  document.getElementById('stat-dropped').textContent = stats.dropped;
 }
 
 function setProgress(pct, indeterminate = false) {
   const f = document.getElementById('progress-fill');
   if (indeterminate) { f.classList.add('indeterminate'); f.style.width = ''; }
-  else { f.classList.remove('indeterminate'); f.style.width = pct + '%'; }
+  else               { f.classList.remove('indeterminate'); f.style.width = pct + '%'; }
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// ── API ───────────────────────────────────────────────────────────────────────
 function baseUrl(env) {
   return env === 'alpha'
     ? 'https://api-alpha.sam.gov/prodlike/federalorganizations/v1'
@@ -438,90 +321,99 @@ async function apiFetch(url) {
   return res.json();
 }
 
-async function fetchAllDepts(base, apiKey, delayMs) {
+// Fetch ALL pages for a given fhorgtype, active only
+async function fetchAllOfType(base, apiKey, orgtype, delayMs) {
   let offset = 0;
   const limit = 100;
   let total = Infinity;
   const results = [];
+
   while (offset < total && !aborted) {
     const url = `${base}/orgs?api_key=${encodeURIComponent(apiKey)}`
-              + `&status=active&fhorgtype=${encodeURIComponent('Department/Ind. Agency')}`
+              + `&status=active`
+              + `&fhorgtype=${encodeURIComponent(orgtype)}`
               + `&limit=${limit}&offset=${offset}`;
     const data = await apiFetch(url);
     total = data.totalrecords ?? 0;
-    results.push(...(data.orglist ?? []));
-    offset += limit;
-    log(`Departments fetched: ${results.length} / ${total}`);
-    await sleep(delayMs);
-  }
-  return results;
-}
-
-// THE FIX: /org/hierarchy returns the queried org itself as the first record.
-// Filter it out by fhorgid so we only get true children.
-async function fetchChildren(base, apiKey, parentId, delayMs) {
-  let offset = 0;
-  const limit = 100;
-  let total = Infinity;
-  const results = [];
-  while (offset < total && !aborted) {
-    const url = `${base}/org/hierarchy?api_key=${encodeURIComponent(apiKey)}`
-              + `&fhorgid=${parentId}&limit=${limit}&offset=${offset}`;
-    let data;
-    try {
-      data = await apiFetch(url);
-    } catch (e) {
-      if (e.message.startsWith('HTTP 400')) break; // leaf node — no children
-      throw e;
-    }
-    // Filter out the parent itself from the returned list
-    const batch = (data.orglist ?? []).filter(o => String(o.fhorgid) !== String(parentId));
-    if (batch.length === 0) break;
-    total = data.totalrecords ?? 0;
+    const batch = data.orglist ?? [];
     results.push(...batch);
     offset += limit;
+    log(`  [${orgtype}] ${results.length} / ${total} fetched`);
     await sleep(delayMs);
   }
   return results;
 }
 
-async function crawlNode(base, apiKey, org, depth, delayMs) {
-  if (aborted) return null;
-  stats.orgs++;
-  if (depth > stats.maxDepth) stats.maxDepth = depth;
-  updateStats();
+// ── Filter & dedup ────────────────────────────────────────────────────────────
+function normalize(name) {
+  return (name ?? '').trim().toUpperCase();
+}
 
-  const indent = '  '.repeat(depth);
-  log(`${indent}[L${depth}] ${org.fhorgname}`, depth === 0 ? 'head' : 'info');
+function processOrgs(depts, subtiers) {
+  // Build a set of all department names (normalized) for container-collapse check
+  const deptNames = new Set(depts.map(d => normalize(d.fhorgname)));
 
-  const childNodes = [];
-  try {
-    const children = await fetchChildren(base, apiKey, org.fhorgid, delayMs);
-    for (const child of children) {
-      if (aborted) break;
-      const node = await crawlNode(base, apiKey, child, depth + 1, delayMs);
-      if (node) childNodes.push(node);
+  const kept = [];
+  const dropped = [];
+  const seenNames = new Set(); // global dedup across both types
+
+  // Process departments first
+  for (const org of depts) {
+    stats.raw++;
+    const key = normalize(org.fhorgname);
+    if (seenNames.has(key)) {
+      dropped.push({ reason: 'duplicate_name', fhorgid: org.fhorgid, fhorgname: org.fhorgname, fhorgtype: org.fhorgtype });
+      stats.dropped++;
+      log(`  ✗ DUPE [Dept]     "${org.fhorgname}"`, 'skip');
+    } else {
+      seenNames.add(key);
+      kept.push(shape(org));
+      stats.kept++;
     }
-  } catch (e) {
-    stats.errors++;
     updateStats();
-    log(`${indent}  ⚠ Error under ${org.fhorgname}: ${e.message}`, 'warn');
   }
 
+  // Process sub-tiers — applying two extra rules:
+  //   1. Drop if name matches any department name (container collapse)
+  //   2. Drop if name already seen (global dedup)
+  for (const org of subtiers) {
+    stats.raw++;
+    const key = normalize(org.fhorgname);
+
+    if (deptNames.has(key)) {
+      dropped.push({ reason: 'container_subtier', fhorgid: org.fhorgid, fhorgname: org.fhorgname, fhorgtype: org.fhorgtype });
+      stats.dropped++;
+      log(`  ✗ CONTAINER [Sub-Tier] "${org.fhorgname}"`, 'skip');
+    } else if (seenNames.has(key)) {
+      dropped.push({ reason: 'duplicate_name', fhorgid: org.fhorgid, fhorgname: org.fhorgname, fhorgtype: org.fhorgtype });
+      stats.dropped++;
+      log(`  ✗ DUPE [Sub-Tier] "${org.fhorgname}"`, 'skip');
+    } else {
+      seenNames.add(key);
+      kept.push(shape(org));
+      stats.kept++;
+      log(`  ✓ KEPT [Sub-Tier] "${org.fhorgname}"`, 'info');
+    }
+    updateStats();
+  }
+
+  return { kept, dropped };
+}
+
+function shape(org) {
   return {
     fhorgid:    org.fhorgid,
     fhorgname:  org.fhorgname,
     fhorgtype:  org.fhorgtype,
-    agencycode: org.agencycode  ?? null,
+    agencycode: org.agencycode ?? null,
     cgac:       org.cgaclist?.[0]?.cgac ?? null,
-    status:     org.status,
-    level:      depth,
-    children:   childNodes
+    status:     org.status
   };
 }
 
+// ── Main ──────────────────────────────────────────────────────────────────────
 async function startCrawl() {
-  const apiKey = document.getElementById('api-key').value.trim();
+  const apiKey  = document.getElementById('api-key').value.trim();
   if (!apiKey) { log('⚠ Please enter your API key first.', 'warn'); return; }
 
   const env     = document.querySelector('input[name="env"]:checked').value;
@@ -529,8 +421,8 @@ async function startCrawl() {
   const base    = baseUrl(env);
 
   aborted = false;
-  stats = { reqs: 0, orgs: 0, maxDepth: 0, errors: 0 };
-  resultTree = null;
+  stats = { reqs: 0, raw: 0, kept: 0, dropped: 0 };
+  resultData = null;
   updateStats();
   setProgress(0, true);
   setStatus('running');
@@ -542,45 +434,67 @@ async function startCrawl() {
   document.getElementById('btn-copy').disabled     = true;
 
   log(`Environment : ${env.toUpperCase()}`, 'head');
-  log(`Base URL    : ${base}`, 'info');
-  log(`Delay       : ${delayMs}ms per request`, 'info');
-  log('─'.repeat(52));
+  log(`Rules       : ACTIVE only · No offices · Container Sub-Tiers collapsed · Name dedup`, 'head');
+  log('─'.repeat(56));
 
   try {
-    log('Fetching all top-level departments...', 'info');
-    const depts = await fetchAllDepts(base, apiKey, delayMs);
+    // Step 1: Departments
+    log('Fetching all active Departments...', 'info');
+    const depts = await fetchAllOfType(base, apiKey, 'Department/Ind. Agency', delayMs);
     if (aborted) throw new Error('Stopped by user.');
+    log(`  → ${depts.length} departments fetched.`, 'ok');
+    setProgress(45);
 
-    log(`Found ${depts.length} departments. Beginning recursive crawl...`, 'ok');
-    log('─'.repeat(52));
+    // Step 2: Sub-Tiers
+    log('Fetching all active Sub-Tiers...', 'info');
+    const subtiers = await fetchAllOfType(base, apiKey, 'Sub-Tier', delayMs);
+    if (aborted) throw new Error('Stopped by user.');
+    log(`  → ${subtiers.length} sub-tiers fetched.`, 'ok');
+    setProgress(75);
 
-    const tree = [];
-    for (let i = 0; i < depts.length; i++) {
-      if (aborted) break;
-      setProgress(Math.round(((i + 1) / depts.length) * 100));
-      const node = await crawlNode(base, apiKey, depts[i], 0, delayMs);
-      if (node) tree.push(node);
-    }
+    // Step 3: Filter & dedup in memory — zero API calls
+    log('─'.repeat(56));
+    log('Applying filters (in memory, no API calls)...', 'info');
+    const { kept, dropped } = processOrgs(depts, subtiers);
 
-    resultTree = tree;
-    document.getElementById('json-blob').textContent = JSON.stringify(tree, null, 2);
+    // Break down dropped reasons for the summary
+    const nContainers = dropped.filter(d => d.reason === 'container_subtier').length;
+    const nDupes      = dropped.filter(d => d.reason === 'duplicate_name').length;
 
-    if (!aborted) {
-      setProgress(100);
-      setStatus('done');
-      log('─'.repeat(52));
-      log(`✓ Complete — ${stats.orgs} orgs | ${stats.reqs} requests | ${stats.errors} errors`, 'ok');
-    } else {
-      setStatus('idle');
-      setProgress(0);
-      log(`Stopped. Partial data saved (${tree.length} top-level nodes).`, 'warn');
-    }
+    // Step 4: Build output
+    const output = {
+      meta: {
+        generated:         new Date().toISOString(),
+        environment:       env,
+        raw_depts:         depts.length,
+        raw_subtiers:      subtiers.length,
+        raw_total:         depts.length + subtiers.length,
+        kept_unique:       kept.length,
+        dropped_total:     dropped.length,
+        dropped_containers: nContainers,
+        dropped_dupes:     nDupes,
+        api_requests:      stats.reqs
+      },
+      organizations: kept,
+      dropped: dropped
+    };
+
+    resultData = output;
+    document.getElementById('json-blob').textContent = JSON.stringify(output, null, 2);
+
+    setProgress(100);
+    setStatus('done');
+    log('─'.repeat(56));
+    log(`✓ Complete`, 'ok');
+    log(`  Raw total     : ${depts.length + subtiers.length}`, 'info');
+    log(`  Kept (unique) : ${kept.length}`, 'ok');
+    log(`  Dropped       : ${dropped.length} (${nContainers} containers + ${nDupes} dupes)`, 'warn');
+    log(`  API requests  : ${stats.reqs}`, 'info');
+
     document.getElementById('btn-download').disabled = false;
     document.getElementById('btn-copy').disabled     = false;
 
   } catch (e) {
-    stats.errors++;
-    updateStats();
     setStatus('error');
     setProgress(0);
     log(`✗ Fatal: ${e.message}`, 'error');
@@ -590,6 +504,7 @@ async function startCrawl() {
   }
 }
 
+// ── Wiring ────────────────────────────────────────────────────────────────────
 document.getElementById('btn-start').addEventListener('click', startCrawl);
 
 document.getElementById('btn-stop').addEventListener('click', () => {
@@ -598,17 +513,17 @@ document.getElementById('btn-stop').addEventListener('click', () => {
 });
 
 document.getElementById('btn-download').addEventListener('click', () => {
-  if (!resultTree) return;
-  const blob = new Blob([JSON.stringify(resultTree, null, 2)], { type: 'application/json' });
+  if (!resultData) return;
+  const blob = new Blob([JSON.stringify(resultData, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `federal_hierarchy_${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `federal_hierarchy_unique_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
 });
 
 document.getElementById('btn-copy').addEventListener('click', async () => {
-  if (!resultTree) return;
-  await navigator.clipboard.writeText(JSON.stringify(resultTree, null, 2));
+  if (!resultData) return;
+  await navigator.clipboard.writeText(JSON.stringify(resultData, null, 2));
   const btn = document.getElementById('btn-copy');
   const orig = btn.textContent;
   btn.textContent = '✓  COPIED!';
@@ -638,6 +553,5 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 </script>
-
 </body>
 </html>
