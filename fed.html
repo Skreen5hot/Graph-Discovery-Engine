@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAM.gov Federal Hierarchy Crawler</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700&display=swap');
+
+:root {
+–bg:       #0a0c0f;
+–panel:    #10141a;
+–border:   #1e2530;
+–accent:   #00c8ff;
+–accent2:  #00ff9d;
+–warn:     #ff6b35;
+–text:     #c8d4e0;
+–muted:    #4a5568;
+–mono:     ‘Share Tech Mono’, monospace;
+–sans:     ‘Barlow’, sans-serif;
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: var(–sans);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+/* SCANLINE overlay */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background: repeating-linear-gradient(
+0deg,
+transparent,
+transparent 2px,
+rgba(0,0,0,0.08) 2px,
+rgba(0,0,0,0.08) 4px
+);
+pointer-events: none;
+z-index: 1000;
+}
+
+header {
+border-bottom: 1px solid var(–border);
+padding: 20px 32px;
+display: flex;
+align-items: center;
+gap: 16px;
+background: var(–panel);
+}
+
+.logo-mark {
+width: 36px;
+height: 36px;
+border: 2px solid var(–accent);
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+flex-shrink: 0;
+}
+
+.logo-mark::before {
+content: ‘’;
+position: absolute;
+width: 18px;
+height: 18px;
+border: 2px solid var(–accent2);
+transform: rotate(45deg);
+}
+
+header h1 {
+font-family: var(–mono);
+font-size: 14px;
+letter-spacing: 0.15em;
+color: var(–accent);
+text-transform: uppercase;
+}
+
+header p {
+font-size: 11px;
+color: var(–muted);
+letter-spacing: 0.05em;
+margin-top: 2px;
+}
+
+.tag {
+margin-left: auto;
+font-family: var(–mono);
+font-size: 10px;
+color: var(–accent2);
+border: 1px solid var(–accent2);
+padding: 3px 8px;
+letter-spacing: 0.1em;
+}
+
+main {
+flex: 1;
+display: grid;
+grid-template-columns: 340px 1fr;
+grid-template-rows: 1fr;
+height: calc(100vh - 77px);
+}
+
+/* LEFT PANEL */
+.controls {
+border-right: 1px solid var(–border);
+padding: 28px 24px;
+display: flex;
+flex-direction: column;
+gap: 24px;
+overflow-y: auto;
+background: var(–panel);
+}
+
+.section-label {
+font-family: var(–mono);
+font-size: 10px;
+letter-spacing: 0.2em;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 10px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.section-label::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: var(–border);
+}
+
+label {
+display: block;
+font-size: 11px;
+color: var(–muted);
+letter-spacing: 0.08em;
+margin-bottom: 6px;
+text-transform: uppercase;
+}
+
+input[type=“text”], input[type=“password”], select {
+width: 100%;
+background: var(–bg);
+border: 1px solid var(–border);
+color: var(–text);
+font-family: var(–mono);
+font-size: 12px;
+padding: 10px 12px;
+outline: none;
+transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+border-color: var(–accent);
+}
+
+.env-row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 8px;
+}
+
+.radio-group {
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+
+.radio-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 8px 10px;
+border: 1px solid var(–border);
+cursor: pointer;
+transition: border-color 0.2s;
+font-size: 12px;
+}
+
+.radio-item:hover { border-color: var(–muted); }
+.radio-item.selected { border-color: var(–accent); color: var(–accent); }
+
+.radio-item input { display: none; }
+
+.radio-dot {
+width: 8px;
+height: 8px;
+border: 1px solid currentColor;
+border-radius: 50%;
+flex-shrink: 0;
+position: relative;
+}
+
+.radio-item.selected .radio-dot::after {
+content: ‘’;
+position: absolute;
+inset: 2px;
+background: var(–accent);
+border-radius: 50%;
+}
+
+.depth-info {
+font-size: 11px;
+color: var(–muted);
+background: var(–bg);
+border: 1px solid var(–border);
+border-left: 3px solid var(–warn);
+padding: 10px 12px;
+line-height: 1.6;
+}
+
+.depth-info strong { color: var(–warn); }
+
+.delay-row {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.delay-row input[type=“range”] {
+flex: 1;
+accent-color: var(–accent);
+background: transparent;
+border: none;
+padding: 0;
+}
+
+.delay-val {
+font-family: var(–mono);
+font-size: 12px;
+color: var(–accent);
+width: 50px;
+text-align: right;
+}
+
+.btn {
+width: 100%;
+padding: 14px;
+font-family: var(–mono);
+font-size: 13px;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+border: none;
+cursor: pointer;
+transition: all 0.2s;
+position: relative;
+overflow: hidden;
+}
+
+.btn-primary {
+background: var(–accent);
+color: var(–bg);
+font-weight: bold;
+}
+
+.btn-primary:hover { background: #33d4ff; }
+.btn-primary:disabled {
+background: var(–border);
+color: var(–muted);
+cursor: not-allowed;
+}
+
+.btn-secondary {
+background: transparent;
+color: var(–accent2);
+border: 1px solid var(–accent2);
+}
+
+.btn-secondary:hover { background: rgba(0,255,157,0.08); }
+.btn-secondary:disabled {
+color: var(–muted);
+border-color: var(–border);
+cursor: not-allowed;
+}
+
+.btn-stop {
+background: transparent;
+color: var(–warn);
+border: 1px solid var(–warn);
+}
+
+.btn-stop:hover { background: rgba(255,107,53,0.1); }
+
+/* STATS */
+.stats-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 8px;
+}
+
+.stat-box {
+background: var(–bg);
+border: 1px solid var(–border);
+padding: 10px 12px;
+}
+
+.stat-box .val {
+font-family: var(–mono);
+font-size: 20px;
+color: var(–accent);
+line-height: 1;
+}
+
+.stat-box .lbl {
+font-size: 10px;
+color: var(–muted);
+letter-spacing: 0.1em;
+text-transform: uppercase;
+margin-top: 4px;
+}
+
+/* PROGRESS BAR */
+.progress-wrap {
+background: var(–bg);
+border: 1px solid var(–border);
+height: 4px;
+position: relative;
+overflow: hidden;
+}
+
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–accent), var(–accent2));
+transition: width 0.3s ease;
+width: 0%;
+}
+
+.progress-fill.indeterminate {
+width: 40%;
+animation: slide 1.2s ease-in-out infinite;
+}
+
+@keyframes slide {
+0% { transform: translateX(-150%); }
+100% { transform: translateX(350%); }
+}
+
+/* RIGHT PANEL */
+.output-panel {
+display: flex;
+flex-direction: column;
+background: var(–bg);
+overflow: hidden;
+}
+
+.output-toolbar {
+border-bottom: 1px solid var(–border);
+padding: 12px 20px;
+display: flex;
+align-items: center;
+gap: 12px;
+background: var(–panel);
+flex-shrink: 0;
+}
+
+.output-toolbar .title {
+font-family: var(–mono);
+font-size: 11px;
+letter-spacing: 0.1em;
+color: var(–muted);
+text-transform: uppercase;
+}
+
+.output-toolbar .btn {
+width: auto;
+padding: 7px 16px;
+font-size: 11px;
+}
+
+.status-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background: var(–muted);
+flex-shrink: 0;
+}
+
+.status-dot.idle { background: var(–muted); }
+.status-dot.running { background: var(–accent); animation: pulse 1s ease infinite; }
+.status-dot.done { background: var(–accent2); }
+.status-dot.error { background: var(–warn); }
+
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.3; }
+}
+
+#log-pane {
+flex: 1;
+overflow-y: auto;
+padding: 16px 20px;
+font-family: var(–mono);
+font-size: 12px;
+line-height: 1.8;
+display: flex;
+flex-direction: column;
+gap: 2px;
+}
+
+.log-line {
+display: flex;
+gap: 12px;
+animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateX(-4px); }
+to   { opacity: 1; transform: translateX(0); }
+}
+
+.log-line .ts { color: var(–muted); flex-shrink: 0; }
+.log-line .msg { color: var(–text); }
+.log-line.info .msg  { color: var(–text); }
+.log-line.ok .msg    { color: var(–accent2); }
+.log-line.warn .msg  { color: var(–warn); }
+.log-line.error .msg { color: #ff4444; }
+.log-line.head .msg  { color: var(–accent); }
+
+#output-pane {
+display: none;
+flex: 1;
+overflow: hidden;
+flex-direction: column;
+}
+
+#output-pane.visible { display: flex; }
+
+#json-blob {
+flex: 1;
+overflow-y: auto;
+padding: 16px 20px;
+font-family: var(–mono);
+font-size: 11px;
+line-height: 1.6;
+color: #7ec8a0;
+white-space: pre;
+word-break: break-all;
+border-top: 1px solid var(–border);
+}
+
+.tab-bar {
+display: flex;
+border-bottom: 1px solid var(–border);
+background: var(–panel);
+flex-shrink: 0;
+}
+
+.tab {
+padding: 10px 20px;
+font-family: var(–mono);
+font-size: 11px;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+cursor: pointer;
+border-bottom: 2px solid transparent;
+color: var(–muted);
+transition: all 0.2s;
+user-select: none;
+}
+
+.tab:hover { color: var(–text); }
+.tab.active { color: var(–accent); border-bottom-color: var(–accent); }
+
+.tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.tab-content.active { display: flex; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(–bg); }
+::-webkit-scrollbar-thumb { background: var(–border); }
+::-webkit-scrollbar-thumb:hover { background: var(–muted); }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="logo-mark"></div>
+  <div>
+    <h1>Federal Hierarchy Crawler</h1>
+    <p>SAM.gov / GSA Federal Organizations API</p>
+  </div>
+  <div class="tag">v1.0</div>
+</header>
+
+<main>
+
+  <!-- LEFT: CONTROLS -->
+
+  <div class="controls">
+
+```
+<div>
+  <div class="section-label">Authentication</div>
+  <label>API Key</label>
+  <input type="password" id="api-key" placeholder="Paste your SAM.gov API key" autocomplete="off">
+</div>
+
+<div>
+  <div class="section-label">Environment</div>
+  <div class="radio-group" id="env-group">
+    <label class="radio-item" id="env-alpha">
+      <input type="radio" name="env" value="alpha" checked>
+      <span class="radio-dot"></span>
+      Alpha (api-alpha.sam.gov)
+    </label>
+    <label class="radio-item" id="env-prod">
+      <input type="radio" name="env" value="prod">
+      <span class="radio-dot"></span>
+      Production (api.sam.gov)
+    </label>
+  </div>
+</div>
+
+<div>
+  <div class="section-label">Scope</div>
+  <div class="radio-group" id="scope-group">
+    <label class="radio-item" id="scope-public">
+      <input type="radio" name="scope" value="public" checked>
+      <span class="radio-dot"></span>
+      Public API — Dept + Sub-Tier only
+    </label>
+    <label class="radio-item" id="scope-fouo">
+      <input type="radio" name="scope" value="fouo">
+      <span class="radio-dot"></span>
+      FOUO API — Full depth (federal users)
+    </label>
+  </div>
+  <div class="depth-info" style="margin-top:10px">
+    <strong>Public:</strong> Levels 1–2 only. Max ~10 req/day (non-federal) or 1,000/day (federal).<br>
+    <strong>FOUO:</strong> Levels 1–N including offices. Federal system account required.
+  </div>
+</div>
+
+<div>
+  <div class="section-label">Request Delay</div>
+  <label>Pause between requests (avoid rate limits)</label>
+  <div class="delay-row">
+    <input type="range" id="delay-slider" min="100" max="2000" step="100" value="300">
+    <span class="delay-val" id="delay-val">300ms</span>
+  </div>
+</div>
+
+<div>
+  <div class="section-label">Status</div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="val" id="stat-reqs">0</div><div class="lbl">Requests</div></div>
+    <div class="stat-box"><div class="val" id="stat-orgs">0</div><div class="lbl">Orgs Found</div></div>
+    <div class="stat-box"><div class="val" id="stat-depth">—</div><div class="lbl">Max Depth</div></div>
+    <div class="stat-box"><div class="val" id="stat-errs">0</div><div class="lbl">Errors</div></div>
+  </div>
+  <div style="margin-top:10px">
+    <div class="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:8px">
+  <button class="btn btn-primary" id="btn-start">▶ START CRAWL</button>
+  <button class="btn btn-stop" id="btn-stop" disabled>■ STOP</button>
+  <button class="btn btn-secondary" id="btn-download" disabled>⬇ DOWNLOAD JSON</button>
+  <button class="btn btn-secondary" id="btn-copy" disabled>⎘ COPY TO CLIPBOARD</button>
+</div>
+```
+
+  </div>
+
+  <!-- RIGHT: OUTPUT -->
+
+  <div class="output-panel">
+
+```
+<div class="tab-bar">
+  <div class="tab active" data-tab="log">
+    <span class="status-dot idle" id="status-dot"></span>&nbsp;&nbsp;Live Log
+  </div>
+  <div class="tab" data-tab="json">JSON Output</div>
+</div>
+
+<div class="tab-content active" id="tab-log">
+  <div id="log-pane">
+    <div class="log-line info">
+      <span class="ts">—</span>
+      <span class="msg">Configure your API key and press START CRAWL.</span>
+    </div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-json">
+  <div id="json-blob">// Output will appear here after crawl completes.</div>
+</div>
+```
+
+  </div>
+
+</main>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let aborted = false;
+let stats = { reqs: 0, orgs: 0, maxDepth: 0, errors: 0 };
+let resultTree = null;
+
+// ─── UI helpers ──────────────────────────────────────────────────────────────
+function log(msg, type = 'info') {
+  const pane = document.getElementById('log-pane');
+  const now = new Date().toTimeString().slice(0,8);
+  const line = document.createElement('div');
+  line.className = `log-line ${type}`;
+  line.innerHTML = `<span class="ts">${now}</span><span class="msg">${msg}</span>`;
+  pane.appendChild(line);
+  pane.scrollTop = pane.scrollHeight;
+}
+
+function setStatus(state) {
+  const dot = document.getElementById('status-dot');
+  dot.className = `status-dot ${state}`;
+}
+
+function updateStats() {
+  document.getElementById('stat-reqs').textContent  = stats.reqs;
+  document.getElementById('stat-orgs').textContent  = stats.orgs;
+  document.getElementById('stat-depth').textContent = stats.maxDepth > 0 ? stats.maxDepth : '—';
+  document.getElementById('stat-errs').textContent  = stats.errors;
+}
+
+function setProgress(pct, indeterminate = false) {
+  const fill = document.getElementById('progress-fill');
+  if (indeterminate) {
+    fill.classList.add('indeterminate');
+    fill.style.width = '';
+  } else {
+    fill.classList.remove('indeterminate');
+    fill.style.width = pct + '%';
+  }
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ─── API ─────────────────────────────────────────────────────────────────────
+function getBaseUrl(env, scope) {
+  if (scope === 'fouo') {
+    return env === 'alpha'
+      ? 'https://api-alpha.sam.gov/prodlike/federalorganizations/v1'
+      : 'https://api.sam.gov/prod/federalorganizations/v1';
+  }
+  return env === 'alpha'
+    ? 'https://api-alpha.sam.gov/prodlike/federalorganizations/v1'
+    : 'https://api.sam.gov/prod/federalorganizations/v1';
+}
+
+async function apiFetch(url) {
+  stats.reqs++;
+  updateStats();
+  const res = await fetch(url);
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`HTTP ${res.status}: ${txt.slice(0, 120)}`);
+  }
+  return res.json();
+}
+
+async function fetchAllOrgs(base, apiKey, delayMs, fhorgtype = null) {
+  let offset = 0;
+  const limit = 100;
+  let total = Infinity;
+  const results = [];
+
+  while (offset < total && !aborted) {
+    let url = `${base}/orgs?api_key=${encodeURIComponent(apiKey)}&status=active&limit=${limit}&offset=${offset}`;
+    if (fhorgtype) url += `&fhorgtype=${encodeURIComponent(fhorgtype)}`;
+
+    const data = await apiFetch(url);
+    total = data.totalrecords ?? 0;
+    const batch = data.orglist ?? [];
+    results.push(...batch);
+    offset += limit;
+
+    await sleep(delayMs);
+  }
+
+  return results;
+}
+
+async function fetchChildren(base, apiKey, fhorgid, delayMs) {
+  let offset = 0;
+  const limit = 100;
+  let total = Infinity;
+  const results = [];
+
+  while (offset < total && !aborted) {
+    const url = `${base}/org/hierarchy?api_key=${encodeURIComponent(apiKey)}&fhorgid=${fhorgid}&limit=${limit}&offset=${offset}`;
+    let data;
+    try {
+      data = await apiFetch(url);
+    } catch (e) {
+      // 400 = no children — expected, not an error
+      if (e.message.startsWith('HTTP 400')) break;
+      throw e;
+    }
+    const batch = data.orglist ?? [];
+    if (batch.length === 0) break;
+    total = data.totalrecords ?? 0;
+    results.push(...batch);
+    offset += limit;
+    await sleep(delayMs);
+  }
+
+  return results;
+}
+
+async function crawlNode(base, apiKey, org, depth, delayMs) {
+  if (aborted) return null;
+
+  stats.orgs++;
+  if (depth > stats.maxDepth) stats.maxDepth = depth;
+  updateStats();
+
+  const indent = '  '.repeat(depth);
+  log(`${indent}[L${depth}] ${org.fhorgname}`, depth === 0 ? 'head' : 'info');
+
+  let children = [];
+  try {
+    const rawChildren = await fetchChildren(base, apiKey, org.fhorgid, delayMs);
+    for (const child of rawChildren) {
+      if (aborted) break;
+      const childNode = await crawlNode(base, apiKey, child, depth + 1, delayMs);
+      if (childNode) children.push(childNode);
+    }
+  } catch (e) {
+    stats.errors++;
+    updateStats();
+    log(`  ⚠ Error under ${org.fhorgname}: ${e.message}`, 'warn');
+  }
+
+  return {
+    fhorgid:     org.fhorgid,
+    fhorgname:   org.fhorgname,
+    fhorgtype:   org.fhorgtype,
+    agencycode:  org.agencycode ?? null,
+    cgac:        org.cgaclist?.[0]?.cgac ?? null,
+    status:      org.status,
+    level:       depth,
+    children:    children
+  };
+}
+
+// ─── Main crawl ──────────────────────────────────────────────────────────────
+async function startCrawl() {
+  const apiKey = document.getElementById('api-key').value.trim();
+  if (!apiKey) { log('⚠ Please enter your API key.', 'warn'); return; }
+
+  const env   = document.querySelector('input[name="env"]:checked').value;
+  const scope = document.querySelector('input[name="scope"]:checked').value;
+  const delayMs = parseInt(document.getElementById('delay-slider').value);
+  const base  = getBaseUrl(env, scope);
+
+  // Reset
+  aborted = false;
+  stats = { reqs: 0, orgs: 0, maxDepth: 0, errors: 0 };
+  resultTree = null;
+  updateStats();
+  setProgress(0, true);
+  setStatus('running');
+  document.getElementById('log-pane').innerHTML = '';
+  document.getElementById('json-blob').textContent = '// Crawl in progress...';
+
+  document.getElementById('btn-start').disabled    = true;
+  document.getElementById('btn-stop').disabled     = false;
+  document.getElementById('btn-download').disabled = true;
+  document.getElementById('btn-copy').disabled     = true;
+
+  log(`Environment : ${env.toUpperCase()}`, 'head');
+  log(`Scope       : ${scope.toUpperCase()}`, 'head');
+  log(`Base URL    : ${base}`, 'info');
+  log(`Delay       : ${delayMs}ms between requests`, 'info');
+  log('─'.repeat(50), 'info');
+  log('Fetching top-level departments...', 'info');
+
+  try {
+    const depts = await fetchAllOrgs(base, apiKey, delayMs, 'Department/Ind. Agency');
+    if (aborted) throw new Error('Aborted by user.');
+
+    log(`Found ${depts.length} departments. Beginning recursive crawl...`, 'ok');
+
+    const tree = [];
+    for (let i = 0; i < depts.length; i++) {
+      if (aborted) break;
+      setProgress(Math.round((i / depts.length) * 100));
+      const node = await crawlNode(base, apiKey, depts[i], 0, delayMs);
+      if (node) tree.push(node);
+    }
+
+    if (!aborted) {
+      resultTree = tree;
+      const jsonStr = JSON.stringify(tree, null, 2);
+      document.getElementById('json-blob').textContent = jsonStr;
+      setProgress(100);
+      setStatus('done');
+      log('─'.repeat(50), 'info');
+      log(`✓ Complete. ${stats.orgs} orgs | ${stats.reqs} requests | ${stats.errors} errors`, 'ok');
+      document.getElementById('btn-download').disabled = false;
+      document.getElementById('btn-copy').disabled     = false;
+    } else {
+      setStatus('idle');
+      log('Crawl stopped by user.', 'warn');
+      if (tree.length > 0) {
+        resultTree = tree;
+        document.getElementById('json-blob').textContent = JSON.stringify(tree, null, 2);
+        document.getElementById('btn-download').disabled = false;
+        document.getElementById('btn-copy').disabled     = false;
+        log(`Partial results saved: ${tree.length} top-level nodes.`, 'warn');
+      }
+    }
+
+  } catch (e) {
+    stats.errors++;
+    updateStats();
+    setStatus('error');
+    setProgress(0);
+    log(`✗ Fatal error: ${e.message}`, 'error');
+  } finally {
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('btn-stop').disabled  = true;
+  }
+}
+
+// ─── Controls ────────────────────────────────────────────────────────────────
+document.getElementById('btn-start').addEventListener('click', startCrawl);
+
+document.getElementById('btn-stop').addEventListener('click', () => {
+  aborted = true;
+  log('Stop signal sent — finishing current request...', 'warn');
+});
+
+document.getElementById('btn-download').addEventListener('click', () => {
+  if (!resultTree) return;
+  const blob = new Blob([JSON.stringify(resultTree, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `federal_hierarchy_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+});
+
+document.getElementById('btn-copy').addEventListener('click', async () => {
+  if (!resultTree) return;
+  await navigator.clipboard.writeText(JSON.stringify(resultTree, null, 2));
+  const btn = document.getElementById('btn-copy');
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = '⎘ COPY TO CLIPBOARD', 2000);
+});
+
+// Delay slider
+document.getElementById('delay-slider').addEventListener('input', e => {
+  document.getElementById('delay-val').textContent = e.target.value + 'ms';
+});
+
+// Radio styling
+document.querySelectorAll('input[type="radio"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    document.querySelectorAll(`input[name="${radio.name}"]`).forEach(r => {
+      r.closest('.radio-item').classList.toggle('selected', r.checked);
+    });
+  });
+  if (radio.checked) radio.closest('.radio-item').classList.add('selected');
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
