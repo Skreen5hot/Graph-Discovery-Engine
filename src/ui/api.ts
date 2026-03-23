@@ -65,3 +65,15 @@ export async function postExecute(cgpC: any, subjectType: string) {
 export async function searchEntities(rangeClass: string, query: string) {
   return apiFetch<any>(`/rpm/entity-search?type=${encodeURIComponent(rangeClass)}&q=${encodeURIComponent(query)}`);
 }
+
+export async function uploadGraph(file: File): Promise<{ mappingCount: number; subjectTypeCount: number }> {
+  const formData = new FormData();
+  formData.append("graph", file);
+  const response = await fetch(`${API_BASE}/rpm/upload-graph`, {
+    method: "POST",
+    body: formData,
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.userMessage ?? "Upload failed.");
+  return { mappingCount: result.mappingCount, subjectTypeCount: result.subjectTypeCount };
+}

@@ -116,9 +116,7 @@ export function SubjectSelection({ onSelect }: Props) {
           : "Select a record type to continue"}
       </button>
 
-      {!import.meta.env.VITE_STATIC_DEMO && (
-        <GraphUpload onDiscoveryComplete={loadTypes} />
-      )}
+      <GraphUpload onDiscoveryComplete={loadTypes} />
     </div>
   );
 }

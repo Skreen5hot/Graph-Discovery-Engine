@@ -4,13 +4,12 @@
  */
 
 import { useState, useRef } from "react";
+import { uploadGraph } from "../api.js";
 import styles from "./GraphUpload.module.css";
 
 interface Props {
   onDiscoveryComplete: () => void;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 export function GraphUpload({ onDiscoveryComplete }: Props) {
   const [file, setFile] = useState<File | null>(null);
@@ -24,22 +23,7 @@ export function GraphUpload({ onDiscoveryComplete }: Props) {
     setMessage("Discovering search options…");
 
     try {
-      const formData = new FormData();
-      formData.append("graph", file);
-
-      const response = await fetch(`${API_BASE}/rpm/upload-graph`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        setStatus("error");
-        setMessage(result.userMessage ?? "Upload failed. Please try again.");
-        return;
-      }
-
+      const result = await uploadGraph(file);
       setStatus("success");
       setMessage(
         `Discovery complete. ${result.mappingCount} search types found across ${result.subjectTypeCount} record types.`,
@@ -47,7 +31,7 @@ export function GraphUpload({ onDiscoveryComplete }: Props) {
       onDiscoveryComplete();
     } catch {
       setStatus("error");
-      setMessage("Upload failed. Please check your connection and try again.");
+      setMessage("Upload failed. Please check the file format and try again.");
     }
   };
 

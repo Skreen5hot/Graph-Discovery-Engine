@@ -153,3 +153,22 @@ export async function searchEntities(rangeClass: string, query: string) {
   const state = await getState();
   return localSearchEntities(rangeClass, query, state.store, state.closure);
 }
+
+export async function uploadGraph(file: File): Promise<{ mappingCount: number; subjectTypeCount: number }> {
+  const text = await file.text();
+  const doc = JSON.parse(text);
+  const overlayDoc = JSON.parse(overlayRaw);
+  const result = runStaticDiscovery(doc, overlayDoc);
+  // Replace cached state
+  statePromise = Promise.resolve({
+    registry: result.registry,
+    catalog: result.catalog,
+    closure: result.closure,
+    typeResolver: result.typeResolver,
+    store: result.store,
+  });
+  return {
+    mappingCount: result.registry.mappings.length,
+    subjectTypeCount: result.catalog.subjectTypes.length,
+  };
+}
